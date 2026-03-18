@@ -1,65 +1,56 @@
 ---
-import SolarWizard from '../components/SolarWizard';
+import Layout from '../layouts/layout.astro';
+import { Navbar } from '../components/organisms/navbar';
+import { Hero } from '../components/organisms/hero';
+import { StatsBar } from '../components/organisms/stats-bar';
+import { FeatureIndustrial } from '../components/organisms/feature-industrial';
+import { SolutionsGrid } from '../components/organisms/solutions-grid';
+import { GuaranteeBanner } from '../components/organisms/guarantee-banner';
+import { SavingsCalculator } from '../components/organisms/savings-calculator';
+import { ContactCta } from '../components/organisms/contact-cta';
+import { Footer } from '../components/organisms/footer';
 import { supabase } from '../lib/supabase';
-import type { Comuna, Kit } from '../types/simulation';
 
-const { data: kits, error: kitsError } = await supabase
-  .from('precios_kits')
-  .select('*')
-  .order('consumo_bruto', { ascending: true });
-
-const { data: comunas, error: comunasError } = await supabase
+const { data: comunasData, error: comunasError } = await supabase
   .from('comunas')
-  .select('*')
+  .select('id, nombre, activa, region')
   .eq('activa', true)
   .order('nombre', { ascending: true });
 
-const typedKits: Kit[] = (kits || []).map(kit => ({
-  id: kit.id,
-  consumoBruto: kit.consumo_bruto,
-  amperajeNecesario: kit.amperaje_necesario,
-  inversorKw: Number(kit.inversor_kw),
-  paneles: kit.paneles,
-  kwp: Number(kit.kwp),
-  precioNetoBase: kit.precio_neto_base,
-}));
-
-const typedComunas: Comuna[] = (comunas || []).map(c => ({
+const comunas = (comunasData || []).map((c: any) => ({
   id: c.id,
   nombre: c.nombre,
   activa: c.activa,
   region: c.region || '',
 }));
 
-const hasErrors = kitsError || comunasError;
+const hasErrors = !!comunasError;
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Simulador Solar Enercity</title>
-  </head>
-  <body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-emerald-700 mb-2">☀️ Enercity</h1>
-        <p class="text-gray-600">Simulador de Energía Solar</p>
-      </div>
-      
-      {hasErrors ? (
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-center">
-          Error al cargar los datos. Por favor intenta más tarde.
+<Layout title="Enercity - Energia Solar para Chile">
+  <Navbar client:load />
+  
+  <main>
+    <Hero />
+    <StatsBar />
+    <FeatureIndustrial />
+    <SolutionsGrid />
+    <GuaranteeBanner />
+    
+    {hasErrors ? (
+      <section className="py-20 bg-gray-50" id="simulador">
+        <div className="container mx-auto px-4 text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 max-w-md mx-auto">
+            Error al cargar los datos. Por favor intenta mas tarde.
+          </div>
         </div>
-      ) : (
-        <SolarWizard client:load comunas={typedComunas} />
-      )}
-      
-      <footer class="text-center mt-8 text-gray-500 text-sm">
-        <p>© 2026 Enercity. Todos los derechos reservados.</p>
-      </footer>
-    </div>
-  </body>
-</html>
+      </section>
+    ) : (
+      <SavingsCalculator client:load comunas={comunas} />
+    )}
+    
+    <ContactCta client:visible />
+  </main>
+  
+  <Footer />
+</Layout>

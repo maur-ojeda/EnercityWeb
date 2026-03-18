@@ -1,0 +1,94 @@
+/* Guarantee Banner Component Styles */
+
+/* Section Layout */
+.guarantee-banner {
+  background-color: #059669;
+  padding-block: 4rem;
+}
+
+@media (min-width: 768px) {
+  .guarantee-banner {
+    padding-block: 4rem;
+  }
+}
+
+/* Container */
+.guarantee-banner .container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  width: min(100%, 1200px);
+}
+
+/* Section Header */
+.banner-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.banner-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .banner-title {
+    font-size: 2.25rem;
+  }
+}
+
+.banner-subtitle {
+  font-size: 1.125rem;
+  color: #d1fae5;
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Feature Card */
+.feature-card {
+  text-align: center;
+}
+
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+}
+
+.feature-icon svg {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.feature-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.feature-description {
+  font-size: 0.875rem;
+  color: #d1fae5;
+  line-height: 1.5;
+}

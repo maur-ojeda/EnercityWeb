@@ -1,30 +1,52 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../lib/supabase';
-
-const FACTOR_TEJA_CHILENA = 1.14;
-const COSTO_FIJO_MEDIDOR_REJA = 350000;
-const IVA = 1.19;
-const LIMITE_INFERIOR = 50000;
-const LIMITE_SUPERIOR = 230000;
+import { getSettings } from '../../lib/settings';
 
 export const prerender = false;
 
+type TipoTecho = 'Losa' | 'Teja Chilena' | 'Otro';
+type TipoMedidor = 'Normal' | 'Reja/Fuera';
+type EstadoResultado = 'OK' | 'NO_VIABLE' | 'EJECUTIVO' | 'ERROR';
+type Clasificacion = 'ALTA_RETORNO' | 'MEDIO_RETORNO' | 'BAJA_RETORNO';
+
+interface RequestBody {
+  montoBoleta: number;
+  comunaId: number;
+  tipoTecho: TipoTecho;
+  tipoMedidor: TipoMedidor;
+}
+
+function clasificarInversion(paybackAnos: number): Clasificacion {
+  if (paybackAnos <= 5) return 'ALTA_RETORNO';
+  if (paybackAnos <= 10) return 'MEDIO_RETORNO';
+  return 'BAJA_RETORNO';
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const { montoBoleta, tipoTecho, tipoMedidor } = body;
+    const settings = await getSettings();
+    
+    const body: RequestBody = await request.json();
+    const { montoBoleta, comunaId, tipoTecho, tipoMedidor } = body;
 
-    if (!montoBoleta || !tipoTecho || !tipoMedidor) {
+    if (!montoBoleta || !comunaId || !tipoTecho || !tipoMedidor) {
       return new Response(JSON.stringify({ error: 'Faltan campos requeridos' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    if (montoBoleta < LIMITE_INFERIOR) {
+    const limiteInferior = Number(settings.limite_inferior);
+    const limiteSuperior = Number(settings.limite_superior);
+    const factorTeja = Number(settings.factor_teja);
+    const costoMedidorReja = Number(settings.costo_medidor_reja);
+    const iva = Number(settings.iva);
+    const performanceRatio = Number(settings.performance_ratio);
+
+    if (montoBoleta < limiteInferior) {
       return new Response(JSON.stringify({
-        estado: 'NO_VIABLE',
-        mensaje: `El monto mínimo para un sistema solar es de $${LIMITE_INFERIOR.toLocaleString('es-CL')}. Contáctanos para otras opciones.`,
+        estado: 'NO_VIABLE' as EstadoResultado,
+        mensaje: `El monto mínimo para un sistema solar es de $${limiteInferior.toLocaleString('es-CL')}. Contáctanos para otras opciones.`,
         precioFinal: 0,
       }), {
         status: 200,
@@ -32,9 +54,9 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    if (montoBoleta > LIMITE_SUPERIOR) {
+    if (montoBoleta > limiteSuperior) {
       return new Response(JSON.stringify({
-        estado: 'EJECUTIVO',
+        estado: 'EJECUTIVO' as EstadoResultado,
         mensaje: 'Tu consumo es alto. Un ejecutivo te contactará para personalizar tu solución.',
         precioFinal: 0,
       }), {
@@ -43,7 +65,28 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const { data: kit, error } = await supabase
+    const { data: comuna, error: errorComuna } = await supabase
+      .from('comunas')
+      .select('id, nombre, region, radiacion_ghi, tarifa_est')
+      .eq('id', comunaId)
+      .single();
+
+    if (errorComuna || !comuna) {
+      console.error('Error fetching comuna:', errorComuna);
+      return new Response(JSON.stringify({
+        estado: 'ERROR' as EstadoResultado,
+        mensaje: 'No se encontró la comuna seleccionada.',
+        precioFinal: 0,
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const radiacionGhi = Number(comuna.radiacion_ghi) || 5.5;
+    const tarifaEst = Number(comuna.tarifa_est) || 175;
+
+    const { data: kit, error: errorKit } = await supabase
       .from('precios_kits')
       .select('*')
       .lte('consumo_bruto', montoBoleta)
@@ -51,9 +94,9 @@ export const POST: APIRoute = async ({ request }) => {
       .limit(1)
       .single();
 
-    if (error || !kit) {
+    if (errorKit || !kit) {
       return new Response(JSON.stringify({
-        estado: 'ERROR',
+        estado: 'ERROR' as EstadoResultado,
         mensaje: 'No se encontró un kit compatible.',
         precioFinal: 0,
       }), {
@@ -62,43 +105,84 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    let precioBase = Number(kit.precio_neto_base);
-    let recargoTecho = 0;
+    const precioBase = Number(kit.precio_neto_base);
+    const kwp = Number(kit.kwp);
+    
     let factorTecho = 1;
-
+    let recargoTecho = 0;
     if (tipoTecho === 'Teja Chilena') {
-      factorTecho = FACTOR_TEJA_CHILENA;
-      recargoTecho = precioBase * (FACTOR_TEJA_CHILENA - 1);
+      factorTecho = factorTeja;
+      recargoTecho = precioBase * (factorTeja - 1);
     }
 
-    let costoFijoMedidor = 0;
+    let costoMedidor = 0;
     if (tipoMedidor === 'Reja/Fuera') {
-      costoFijoMedidor = COSTO_FIJO_MEDIDOR_REJA;
+      costoMedidor = costoMedidorReja;
     }
 
-    const precioSinIva = (precioBase * factorTecho) + costoFijoMedidor;
-    const precioFinal = Math.round(precioSinIva * IVA);
+    const precioSinIva = (precioBase * factorTecho) + costoMedidor;
+    const precioFinalIva = Math.round(precioSinIva * iva);
 
-    return new Response(JSON.stringify({
-      estado: 'OK',
+    // Cálculos de ROI
+    const consumoKwhAnual = (montoBoleta / tarifaEst) * 12;
+    const generacionAnualKwh = kwp * radiacionGhi * 365 * performanceRatio;
+    const ahorroAnual = Math.min(generacionAnualKwh, consumoKwhAnual) * tarifaEst;
+    const ahorroMensual = ahorroAnual / 12;
+    const coberturaPorcentaje = Math.min((generacionAnualKwh / consumoKwhAnual) * 100, 95);
+    
+    const paybackAnos = ahorroAnual > 0 ? precioFinalIva / ahorroAnual : 999;
+    const clasificacion = clasificarInversion(paybackAnos);
+
+    const response = {
+      estado: 'OK' as EstadoResultado,
+      mensaje: null,
+      input: {
+        montoBoleta,
+        comunaId,
+        tipoTecho,
+        tipoMedidor
+      },
+      datosComuna: {
+        id: comuna.id,
+        nombre: comuna.nombre,
+        region: comuna.region,
+        radiacionGhi,
+        tarifaEst
+      },
       kit: {
         id: kit.id,
         consumoBruto: kit.consumo_bruto,
-        amperajeNecesario: kit.amperaje_necesario,
         inversorKw: Number(kit.inversor_kw),
         paneles: kit.paneles,
-        kwp: Number(kit.kwp),
-        precioNetoBase: kit.precio_neto_base,
+        kwp,
+        precioNetoBase: kit.precio_neto_base
       },
-      desglose: {
+      calculo: {
+        consumoKwhAnual: Math.round(consumoKwhAnual),
+        generacionAnualKwh: Math.round(generacionAnualKwh),
+        ahorroAnual: Math.round(ahorroAnual),
+        ahorroMensual: Math.round(ahorroMensual),
+        coberturaPorcentaje: Math.round(coberturaPorcentaje * 10) / 10,
         precioBase,
         factorTecho,
         recargoTecho,
-        costoFijoMedidor,
+        costoMedidor,
         precioSinIva,
-        precioFinal,
+        iva: Math.round(precioSinIva * (iva - 1)),
+        precioFinalIva,
+        paybackAnos: Math.round(paybackAnos * 10) / 10
       },
-    }), {
+      resumenInversion: {
+        ahorroMensual: Math.round(ahorroMensual),
+        ahorroAnual: Math.round(ahorroAnual),
+        inversionTotal: precioFinalIva,
+        anosRecuperacion: Math.round(paybackAnos * 10) / 10,
+        cobertura: Math.round(coberturaPorcentaje * 10) / 10,
+        clasificacion
+      }
+    };
+
+    return new Response(JSON.stringify(response), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

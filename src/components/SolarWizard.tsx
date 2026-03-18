@@ -1,19 +1,53 @@
 import { useState } from 'react';
-import type { Comuna, Kit } from '../types/simulation';
+import type { Comuna } from '../types/simulation';
 
 interface QuoteResult {
   estado: 'OK' | 'NO_VIABLE' | 'EJECUTIVO' | 'ERROR';
   mensaje?: string;
-  kit?: Kit;
-  desglose?: {
+  input?: {
+    montoBoleta: number;
+    comunaId: number;
+    tipoTecho: string;
+    tipoMedidor: string;
+  };
+  datosComuna?: {
+    id: number;
+    nombre: string;
+    region: string;
+    radiacionGhi: number;
+    tarifaEst: number;
+  };
+  kit?: {
+    id: number;
+    consumoBruto: number;
+    inversorKw: number;
+    paneles: number;
+    kwp: number;
+    precioNetoBase: number;
+  };
+  calculo?: {
+    consumoKwhAnual: number;
+    generacionAnualKwh: number;
+    ahorroAnual: number;
+    ahorroMensual: number;
+    coberturaPorcentaje: number;
     precioBase: number;
     factorTecho: number;
     recargoTecho: number;
-    costoFijoMedidor: number;
+    costoMedidor: number;
     precioSinIva: number;
-    precioFinal: number;
+    iva: number;
+    precioFinalIva: number;
+    paybackAnos: number;
   };
-  precioFinal?: number;
+  resumenInversion?: {
+    ahorroMensual: number;
+    ahorroAnual: number;
+    inversionTotal: number;
+    anosRecuperacion: number;
+    cobertura: number;
+    clasificacion: 'ALTA_RETORNO' | 'MEDIO_RETORNO' | 'BAJA_RETORNO';
+  };
 }
 
 interface WizardProps {
@@ -90,6 +124,7 @@ export default function SolarWizard({ comunas }: WizardProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             montoBoleta: formData.montoBoleta,
+            comunaId: formData.comunaId,
             tipoTecho: formData.tipoTecho,
             tipoMedidor: formData.tipoMedidor,
           }),
@@ -124,7 +159,7 @@ export default function SolarWizard({ comunas }: WizardProps) {
   };
 
   const handleSubmitLead = async () => {
-    if (!result || result.estado !== 'OK' || !result.desglose) return;
+    if (!result || result.estado !== 'OK' || !result.calculo) return;
     if (!formData.nombre || !formData.email) {
       setError('Por favor completa tu nombre y email');
       return;
@@ -144,9 +179,9 @@ export default function SolarWizard({ comunas }: WizardProps) {
           comunaId: formData.comunaId || null,
           montoBoletaIngresado: formData.montoBoleta,
           kitId: result.kit?.id,
-          factorTechoAplicado: result.desglose.factorTecho,
-          costoFijoMedidorAplicado: result.desglose.costoFijoMedidor,
-          precioFinalIva: result.desglose.precioFinal,
+          factorTechoAplicado: result.calculo.factorTecho,
+          costoMedidorAplicado: result.calculo.costoMedidor,
+          precioFinalIva: result.calculo.precioFinalIva,
         }),
       });
 
@@ -158,7 +193,7 @@ export default function SolarWizard({ comunas }: WizardProps) {
 
       setLeadCreated(true);
 
-      if (result.desglose) {
+      if (result.calculo) {
         const pdfData = {
           nombre: formData.nombre,
           email: formData.email,
@@ -171,15 +206,15 @@ export default function SolarWizard({ comunas }: WizardProps) {
           },
           tipoTecho: formData.tipoTecho,
           tipoMedidor: formData.tipoMedidor,
-          precioBase: result.desglose.precioBase,
-          recargoTecho: result.desglose.recargoTecho,
-          costoFijoMedidor: result.desglose.costoFijoMedidor,
-          precioFinal: result.desglose.precioFinal,
+          precioBase: result.calculo.precioBase,
+          recargoTecho: result.calculo.recargoTecho,
+          costoMedidor: result.calculo.costoMedidor,
+          precioFinalIva: result.calculo.precioFinalIva,
           fecha: new Date().toLocaleDateString('es-CL'),
         };
         
-        const { generatePDF } = await import('../lib/pdfGenerator');
-        generatePDF(pdfData);
+        //const { generatePDF } = await import('../lib/pdfGenerator');
+        //generatePDF(pdfData);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -316,14 +351,14 @@ export default function SolarWizard({ comunas }: WizardProps) {
     }
 
     if (leadCreated) {
-      const desglose = result.desglose!;
+      const resumen = result.resumenInversion!;
       return (
         <div className="text-center space-y-4">
           <div className="text-6xl">✅</div>
           <h2 className="text-2xl font-bold text-gray-800">¡Solicitud Enviada!</h2>
           <p className="text-gray-600">Hemos enviado los detalles a tu email.</p>
           <p className="text-emerald-600 font-semibold text-lg">
-            Precio final: {formatCLP(desglose.precioFinal)}
+            Inversión total: {formatCLP(resumen.inversionTotal)}
           </p>
           <p className="text-gray-500 text-sm mt-4">
             Un ejecutivo te contactará pronto para finalizar la instalación.
@@ -332,44 +367,95 @@ export default function SolarWizard({ comunas }: WizardProps) {
       );
     }
 
-    const desglose = result.desglose!;
+    const calculo = result.calculo!;
     const kit = result.kit!;
+    const comuna = result.datosComuna!;
+    const resumen = result.resumenInversion!;
+
+    const getClasificacionColor = (clasificacion: string) => {
+      if (clasificacion === 'ALTA_RETORNO') return 'bg-green-100 text-green-800 border-green-300';
+      if (clasificacion === 'MEDIO_RETORNO') return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      return 'bg-red-100 text-red-800 border-red-300';
+    };
+
+    const getClasificacionTexto = (clasificacion: string) => {
+      if (clasificacion === 'ALTA_RETORNO') return '¡EXCELENTE INVERSIÓN!';
+      if (clasificacion === 'MEDIO_RETORNO') return 'BUENA INVERSIÓN';
+      return 'INVERSIÓN A LARGO PLAZO';
+    };
 
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-800 text-center">Tu Presupuesto</h2>
+        <h2 className="text-2xl font-bold text-gray-800 text-center">Tu Inversión Solar</h2>
         
-        <div className="bg-gray-50 rounded-xl p-6 space-y-4">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Kit recomendado</span>
-            <span className="font-semibold">{kit.kwp} kWP / {kit.paneles} paneles</span>
+        {/* ROI Principal - AHORRO MENSUAL */}
+        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white text-center">
+          <p className="text-emerald-100 text-sm font-medium uppercase tracking-wider">Ahorro Mensual</p>
+          <p className="text-5xl font-bold mt-2">{formatCLP(resumen.ahorroMensual)}</p>
+          <p className="text-emerald-100 mt-2">por mes</p>
+        </div>
+
+        {/* payback Y CLASIFICACIÓN */}
+        <div className="flex gap-4">
+          <div className="flex-1 bg-gray-50 rounded-xl p-4 text-center">
+            <p className="text-gray-500 text-sm">Años para recuperar</p>
+            <p className="text-3xl font-bold text-gray-800">{resumen.anosRecuperacion} años</p>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Inversor</span>
-            <span className="font-semibold">{kit.inversorKw} kW</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Precio base</span>
-            <span>{formatCLP(desglose.precioBase)}</span>
-          </div>
-          {desglose.recargoTecho > 0 && (
-            <div className="flex justify-between text-amber-600">
-              <span>Recargo Teja Chilena (+14%)</span>
-              <span>+{formatCLP(desglose.recargoTecho)}</span>
-            </div>
-          )}
-          {desglose.costoFijoMedidor > 0 && (
-            <div className="flex justify-between text-amber-600">
-              <span>Medidor Reja/Fuera</span>
-              <span>+{formatCLP(desglose.costoFijoMedidor)}</span>
-            </div>
-          )}
-          <div className="border-t pt-4 flex justify-between text-lg font-bold">
-            <span>Precio final (inc. IVA)</span>
-            <span className="text-emerald-600">{formatCLP(desglose.precioFinal)}</span>
+          <div className={`flex-1 rounded-xl p-4 text-center border-2 ${getClasificacionColor(resumen.clasificacion)}`}>
+            <p className="text-sm font-medium">{getClasificacionTexto(resumen.clasificacion)}</p>
           </div>
         </div>
 
+        {/* COBERTURA */}
+        <div className="bg-gray-50 rounded-xl p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-600">Cobertura Energética</span>
+            <span className="font-bold text-emerald-600">{resumen.cobertura}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className="bg-emerald-500 h-3 rounded-full transition-all"
+              style={{ width: `${Math.min(resumen.cobertura, 100)}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            {calculo.generacionAnualKwh.toLocaleString('es-CL')} kWh/año generados
+          </p>
+        </div>
+
+        {/* DATOS TÉCNICOS */}
+        <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500">Comuna</span>
+            <span className="font-medium">{comuna.nombre}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Sistema</span>
+            <span className="font-medium">{kit.kwp} kWP / {kit.paneles} paneles</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Inversor</span>
+            <span className="font-medium">{kit.inversorKw} kW</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Generación anual</span>
+            <span className="font-medium">{calculo.generacionAnualKwh.toLocaleString('es-CL')} kWh</span>
+          </div>
+        </div>
+
+        {/* PRECIO FINAL */}
+        <div className="border-t pt-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 font-medium">Inversión Total (inc. IVA)</span>
+            <span className="text-2xl font-bold text-emerald-600">{formatCLP(calculo.precioFinalIva)}</span>
+          </div>
+          <div className="flex justify-between text-sm mt-1">
+            <span className="text-gray-500">Ahorro anual</span>
+            <span className="text-emerald-600">{formatCLP(resumen.ahorroAnual)}/año</span>
+          </div>
+        </div>
+
+        {/* FORMULARIO CONTACTO */}
         <div className="space-y-4">
           <h3 className="font-semibold text-gray-800">Tus datos de contacto</h3>
           <div>

@@ -1,0 +1,80 @@
+/* Stats Bar Component Styles */
+
+/* Section Layout */
+.stats-bar {
+  padding-block: 4rem;
+  background-color: #ffffff;
+}
+
+.stats-bar .container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  width: min(100%, 1200px);
+}
+
+/* Grid Layout */
+.stats-bar .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.stats-bar .grid-md-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (min-width: 768px) {
+  .stats-bar .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Card Styles */
+.stats-bar .card {
+  border: none;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.stats-bar .card-content {
+  padding-top: 1.5rem;
+  text-align: center;
+}
+
+/* Icon Container */
+.stats-bar .icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background-color: #d1fae5;
+  margin-bottom: 1rem;
+}
+
+.stats-bar .icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #059669;
+}
+
+/* Typography */
+.stats-bar .stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.stats-bar .stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+  margin-top: 0.25rem;
+}
+
+.stats-bar .stat-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}

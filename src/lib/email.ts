@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
+import { getSettings } from './settings';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -24,13 +25,19 @@ interface EmailOptions {
   };
 }
 
-export async function sendQuoteEmail({ to, nombre, pdfUrl, datos }: EmailOptions): Promise<void> {
+export async function sendQuoteEmail({ to, nombre, datos }: EmailOptions): Promise<void> {
+  const settings = await getSettings();
+  
+  const emailFromName = String(settings.email_from_name || 'Enercity');
+  const emailFromAddress = String(settings.email_from_address || 'presupuestos@enercity.cl');
+  const telefono = String(settings.email_telefono || '+56912345678');
+  
   const subject = `Tu Presupuesto Solar - ${nombre}`;
   const isDev = process.env.NODE_ENV === 'development' || !resend;
 
   let htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #059669;">☀️ Enercity</h1>
+      <h1 style="color: #059669;">☀️ ${emailFromName}</h1>
       <h2>Tu Presupuesto Solar</h2>
       <p>Hola <strong>${nombre}</strong>,</p>
       <p>Gracias por usar nuestro simulador solar. Aqui estan los detalles de tu presupuesto:</p>
@@ -59,19 +66,22 @@ export async function sendQuoteEmail({ to, nombre, pdfUrl, datos }: EmailOptions
         <li>✓ Tramitacion ante la compania electrica</li>
         <li>✓ Garantia de 25 anos en paneles</li>
       </ul>
+      <p style="margin-top: 20px;"><strong>Contacto:</strong> ${telefono}</p>
       <p style="margin-top: 20px; padding: 15px; background: #f0fdf4; border-radius: 8px; text-align: center;">
         <strong>Un ejecutivo te contactara pronto para finalizar la instalacion.</strong>
       </p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
       <p style="color: #666; font-size: 12px;">
-        © 2026 Enercity. Todos los derechos reservados.<br>
+        © 2026 ${emailFromName}. Todos los derechos reservados.<br>
         Este presupuesto tiene validez por 30 dias.
       </p>
     </div>
   `;
 
+  const fromAddress = isDev ? 'enercity@dev.local' : `${emailFromName} <${emailFromAddress}>`;
+
   const mailOptions: any = {
-    from: isDev ? 'enercity@dev.local' : 'Enercity <presupuestos@enercity.cl>',
+    from: fromAddress,
     to,
     subject,
     html: htmlContent,
@@ -79,7 +89,7 @@ export async function sendQuoteEmail({ to, nombre, pdfUrl, datos }: EmailOptions
 
   if (isDev) {
     try {
-      console.log(`[DEV] Enviando email a ${to} con enlace PDF: ${pdfUrl || 'N/A'}`);
+      console.log(`[DEV] Enviando email a ${to}`);
       const info = await mailhogTransporter.sendMail(mailOptions);
       console.log(`[DEV] Email enviado a Mailhog: ${to}, MessageID: ${info.messageId}`);
     } catch (error) {
