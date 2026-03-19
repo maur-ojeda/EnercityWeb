@@ -11,9 +11,12 @@ import { ContactCta } from '../components/organisms/contact-cta';
 import { Footer } from '../components/organisms/footer';
 import { supabase } from '../lib/supabase';
 
+import { Check, ChevronLeft, ChevronRight, Loader2, Info, Zap, BarChart3, Shield } from 'lucide-react';
+
+
 const { data: comunasData, error: comunasError } = await supabase
   .from('comunas')
-  .select('id, nombre, activa, region')
+  .select('id, nombre, activa, region, radiacion_ghi, tarifa_est' )
   .eq('activa', true)
   .order('nombre', { ascending: true });
 
@@ -22,6 +25,8 @@ const comunas = (comunasData || []).map((c: any) => ({
   nombre: c.nombre,
   activa: c.activa,
   region: c.region || '',
+  radiacion_ghi: c.radiacion_ghi || '',
+  tarifa_est: c.tarifa_est || '',
 }));
 
 const hasErrors = !!comunasError;
@@ -36,7 +41,6 @@ const hasErrors = !!comunasError;
     <FeatureIndustrial client:visible/>
     <SolutionsGrid client:visible/>
     <GuaranteeBanner client:visible/>
-    {{hasErrors}}
     {hasErrors ? (
       <section className="py-20 bg-gray-50" id="simulador">
         <div className="container mx-auto px-4 text-center">
@@ -47,6 +51,7 @@ const hasErrors = !!comunasError;
       </section>
     ) : (
       <SavingsCalculator client:load comunas={comunas} />
+      
     )}
     
     <ContactCta client:visible />

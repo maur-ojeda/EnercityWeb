@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador Solar – Enercity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       VARIABLES
+    ═══════════════════════════════════════════════════════════ */
+    :root {
+      --naranja : #F07E04;
+      --ocre    : #F09C0A;
+      --azul    : #154660;
+      --verde   : #4AAF4D;
+      --bg      : #0A1929;
+      --card-bg : #0D2D3E;
+      --white   : #ffffff;
+      --muted   : rgba(255,255,255,0.55);
+      --subtle  : rgba(255,255,255,0.08);
+      --radius  : 0.75rem;
+      --radius-lg: 1.875rem;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESET / BASE
+    ═══════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+    input  { font-family: inherit; outline: none; border: none; }
+    a      { text-decoration: none; }
+
+    /* ═══════════════════════════════════════════════════════════
+       CARD  (the outer container)
+    ═══════════════════════════════════════════════════════════ */
+    .ss-card {
+      width: 100%;
+      max-width: 520px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: linear-gradient(135deg, #0A1929 0%, var(--azul) 60%, var(--card-bg) 100%);
+      border: 1px solid var(--subtle);
+      box-shadow: 0 40px 100px rgba(21,70,96,0.5);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════════════════════════ */
+    .ss-header {
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--subtle);
+    }
+    .ss-header__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .ss-header__badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--naranja);
+      margin-bottom: 0.3rem;
+    }
+    .ss-header__title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--white);
+    }
+
+    /* ── Step Dots ── */
+    .step-dots {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-dot {
+      height: 8px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.35);
+      transition: width 0.35s cubic-bezier(0.34,1.56,0.64,1),
+                  background 0.25s ease,
+                  opacity 0.25s ease;
+      width: 8px;
+      opacity: 0.35;
+    }
+    .step-dot.done   { opacity: 1; background: rgba(255,255,255,0.5); }
+    .step-dot.active { width: 24px; opacity: 1; background: var(--naranja); }
+
+    /* ── Progress Bar ── */
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: var(--naranja);
+      transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      /* JS sets width: calc((step-1)/(total-1)*100%) */
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STEP CONTENT AREA
+    ═══════════════════════════════════════════════════════════ */
+    .ss-body {
+      padding: 2rem;
+      min-height: 440px;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) { .ss-body { padding: 2rem 2.5rem; } }
+
+    /* Each step is hidden by default; JS adds .is-active */
+    .ss-step {
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+      flex: 1;
+      animation: ss-slide-in 0.3s ease;
+    }
+    .ss-step.is-active { display: flex; }
+    .ss-step.exit      { animation: ss-slide-out 0.3s ease forwards; }
+
+    @keyframes ss-slide-in {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes ss-slide-out {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(-30px); }
+    }
+
+    /* ── Step heading block ── */
+    .ss-step__heading h3 {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+    .ss-step__heading p { font-size: 0.875rem; color: var(--muted); }
+
+    /* Spacer to push buttons to the bottom */
+    .ss-spacer { flex: 1; }
+
+    /* ═══════════════════════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════════════════════ */
+
+    /* Primary CTA */
+    .btn-primary {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      background: var(--naranja);
+      color: var(--white);
+      font-weight: 900;
+      font-size: 1.1rem;
+      text-align: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+      box-shadow: 0 8px 28px rgba(240,126,4,0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .btn-primary:hover  { transform: scale(1.02); box-shadow: 0 12px 36px rgba(240,126,4,0.5); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled,
+    .btn-primary.is-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: rgba(255,255,255,0.1);
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Back / ghost */
+    .btn-back {
+      padding: 1rem 1.125rem;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      transition: color 0.2s ease, background 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-back:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+
+    /* Inline row (back + primary) */
+    .btn-row { display: flex; gap: 0.75rem; }
+    .btn-row .btn-primary { flex: 1; }
+
+    /* WhatsApp CTA */
+    .btn-whatsapp {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      background: #25D366;
+      color: var(--white);
+      font-weight: 900;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      box-shadow: 0 8px 28px rgba(37,211,102,0.35);
+      transition: transform 0.15s ease;
+    }
+    .btn-whatsapp:hover  { transform: scale(1.02); }
+    .btn-whatsapp:active { transform: scale(0.98); }
+    .btn-whatsapp svg { width: 20px; height: 20px; fill: var(--white); flex-shrink: 0; }
+
+    /* ═══════════════════════════════════════════════════════════
+       ALERTS / NOTICE PILLS
+    ═══════════════════════════════════════════════════════════ */
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      animation: ss-fade-up 0.3s ease;
+    }
+    @keyframes ss-fade-up {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .alert svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+
+    .alert--green {
+      background: rgba(74,175,77,0.15);
+      border: 1px solid rgba(74,175,77,0.3);
+      color: var(--verde);
+    }
+    .alert--orange {
+      background: rgba(240,126,4,0.15);
+      border: 1px solid rgba(240,126,4,0.4);
+      color: var(--naranja);
+    }
+    .alert--ocre {
+      background: rgba(240,156,10,0.1);
+      border: 1px solid rgba(240,156,10,0.3);
+      color: var(--ocre);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STEP 1 – COMMUNE DROPDOWN
+    ═══════════════════════════════════════════════════════════ */
+    .commune-wrap { position: relative; }
+
+    .commune-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.4);
+      font-size: 0.95rem;
+      transition: border-color 0.2s ease;
+    }
+    .commune-toggle.has-value {
+      border-color: rgba(240,126,4,0.5);
+      color: var(--white);
+    }
+    .commune-toggle svg {
+      width: 16px; height: 16px;
+      color: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+    }
+    .commune-toggle.is-open svg { transform: rotate(180deg); }
+
+    .commune-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0; right: 0;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      z-index: 50;
+      animation: ss-fade-in-drop 0.18s ease;
+    }
+    .commune-menu.is-open { display: block; }
+
+    @keyframes ss-fade-in-drop {
+      from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .commune-search-wrap { padding: 0.5rem; }
+    .commune-search {
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--white);
+      font-size: 0.875rem;
+    }
+    .commune-search::placeholder { color: rgba(255,255,255,0.3); }
+
+    .commune-list {
+      max-height: 192px;
+      overflow-y: auto;
+      padding-bottom: 0.5rem;
+    }
+    .commune-list::-webkit-scrollbar { width: 4px; }
+    .commune-list::-webkit-scrollbar-track { background: transparent; }
+    .commune-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 9999px;
+    }
+
+    .commune-item {
+      width: 100%;
+      padding: 0.625rem 1rem;
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.875rem;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .commune-item:hover    { background: rgba(255,255,255,0.1); }
+    .commune-item.selected { color: var(--naranja); background: rgba(240,126,4,0.08); }
+
+    /* ═══════════════════════════════════════════════════════════
+       STEP 2 – CONSUMPTION SLIDER
+    ═══════════════════════════════════════════════════════════ */
+    .consumption-display {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .consumption-display__amount {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .consumption-display__amount .plus-badge {
+      font-size: 1.5rem;
+      color: var(--naranja);
+      margin-left: 0.25rem;
+    }
+    .consumption-display__label {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* Range input */
+    .slider-wrap { padding: 0 0.25rem; }
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 9999px;
+      cursor: pointer;
+      outline: none;
+      /* background set dynamically via JS inline style */
+      background: linear-gradient(
+        to right,
+        var(--naranja) 0%,
+        var(--naranja) 35%,
+        rgba(255,255,255,0.15) 35%,
+        rgba(255,255,255,0.15) 100%
+      );
+    }
+    /* Thumb – WebKit */
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 0 3px var(--naranja);
+      cursor: grab;
+      transition: box-shadow 0.15s ease;
+    }
+    .slider::-webkit-slider-thumb:active { cursor: grabbing; box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 0 4px var(--naranja); }
+    /* Thumb – Firefox */
+    .slider::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: none;
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 0 3px var(--naranja);
+      cursor: grab;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STEP 3 – ROOF / METER SELECTORS
+    ═══════════════════════════════════════════════════════════ */
+    .field-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Roof grid (3 cols) */
+    .roof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+    .roof-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .roof-btn svg { width: 24px; height: 24px; transition: color 0.2s; }
+    .roof-btn:hover {
+      border-color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.08);
+    }
+    .roof-btn.selected {
+      background: rgba(240,126,4,0.18);
+      border-color: var(--naranja);
+      box-shadow: 0 0 0 1px rgba(240,126,4,0.35);
+      color: var(--naranja);
+    }
+    .roof-btn.selected svg { color: var(--naranja); }
+
+    /* Meter grid (2 cols) */
+    .meter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .meter-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.1);
+      text-align: left;
+      transition: all 0.2s ease;
+      gap: 0.25rem;
+    }
+    .meter-btn:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); }
+    .meter-btn.selected {
+      background: rgba(240,126,4,0.18);
+      border-color: var(--naranja);
+    }
+
+    .meter-btn__top {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .radio-ring {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.2s;
+    }
+    .meter-btn.selected .radio-ring { border-color: var(--naranja); }
+    .radio-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--naranja);
+      display: none;
+    }
+    .meter-btn.selected .radio-dot { display: block; }
+
+    .meter-btn__label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .meter-btn__sub {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      margin-left: 1.5rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STEP 4 – LOADING ANIMATION
+    ═══════════════════════════════════════════════════════════ */
+    .loading-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+
+    /* Sun spinner */
+    .sun-spinner {
+      position: relative;
+      width: 7rem; height: 7rem;
+    }
+    .sun-rays {
+      position: absolute;
+      inset: 0;
+      animation: ss-spin 8s linear infinite;
+    }
+    .sun-ray {
+      position: absolute;
+      width: 6px; height: 18px;
+      border-radius: 9999px;
+      background: rgba(240,156,10,0.5);
+      left: 50%;
+      top: 4px;
+      transform-origin: 3px 60px;
+    }
+    @keyframes ss-spin { to { transform: rotate(360deg); } }
+
+    .sun-core {
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle, #F09C0A, #F07E04);
+      box-shadow: 0 0 40px rgba(240,126,4,0.5);
+      animation: ss-pulse 2s ease-in-out infinite;
+    }
+    @keyframes ss-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.1); }
+    }
+    .sun-core svg { width: 2.5rem; height: 2.5rem; color: var(--white); }
+
+    .battery-badge {
+      position: absolute;
+      bottom: -4px; right: -4px;
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: var(--verde);
+      box-shadow: 0 0 12px rgba(74,175,77,0.6);
+      display: flex; align-items: center; justify-content: center;
+      animation: ss-blink 1.5s ease-in-out infinite 0.5s;
+    }
+    @keyframes ss-blink {
+      0%, 100% { opacity: 0; }
+      50%       { opacity: 1; }
+    }
+    .battery-badge svg { width: 1rem; height: 1rem; color: var(--white); }
+
+    /* Loading messages */
+    .loading-msgs { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 0.75rem; }
+    .loading-msg  { display: flex; align-items: center; gap: 0.75rem; transition: opacity 0.4s ease; }
+    .loading-msg.pending { opacity: 0.2; }
+
+    .msg-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-icon.done    { background: var(--verde); }
+    .msg-icon.active  { background: var(--naranja); }
+    .msg-icon svg     { width: 12px; height: 12px; color: var(--white); }
+
+    .msg-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .msg-dot.pending-dot { background: rgba(255,255,255,0.2); }
+    .msg-dot.active-dot  { background: var(--white); animation: ss-dot-pulse 0.7s ease-in-out infinite; }
+    @keyframes ss-dot-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.4); }
+    }
+
+    .msg-text { font-size: 0.875rem; color: rgba(255,255,255,0.9); }
+    .loading-msg.pending .msg-text { color: rgba(255,255,255,0.3); }
+
+    /* ═══════════════════════════════════════════════════════════
+       STEP 5 – RESULTS
+    ═══════════════════════════════════════════════════════════ */
+
+    /* Annual savings hero card */
+    .saving-hero {
+      grid-column: 1 / -1;
+      padding: 1.25rem;
+      border-radius: 1rem;
+      text-align: center;
+      background: rgba(240,126,4,0.12);
+      border: 1px solid rgba(240,126,4,0.35);
+    }
+    .saving-hero__label {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 0.25rem;
+    }
+    .saving-hero__amount {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--naranja);
+      line-height: 1;
+    }
+    .saving-hero__bar-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.625rem;
+    }
+    .coverage-track {
+      height: 4px;
+      width: 6rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+    .coverage-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: var(--verde);
+      transition: width 1.2s ease 0.5s;
+      width: 0%; /* animated via JS */
+    }
+    .coverage-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--verde);
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .stat-card {
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat-card__label-row {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin-bottom: 0.25rem;
+    }
+    .stat-card__label {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+    }
+    .stat-card__label-row svg {
+      width: 12px; height: 12px;
+      color: rgba(255,255,255,0.25);
+      cursor: help;
+    }
+    .stat-card__value {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--white);
+    }
+
+    /* SEC kit notice */
+    .sec-notice {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: var(--radius);
+      background: rgba(240,156,10,0.08);
+      border: 1px solid rgba(240,156,10,0.28);
+      font-size: 0.75rem;
+      color: var(--ocre);
+    }
+    .sec-notice svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── Lead Form ─── */
+    .lead-form { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .lead-input {
+      width: 100%;
+      padding: 0.875rem 1.25rem;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--white);
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease;
+    }
+    .lead-input::placeholder { color: rgba(255,255,255,0.35); }
+    .lead-input:focus { border-color: rgba(240,126,4,0.55); }
+
+    /* ═══════════════════════════════════════════════════════════
+       SUBMITTED STATE
+    ═══════════════════════════════════════════════════════════ */
+    .submitted-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      text-align: center;
+      padding: 2rem 0;
+      animation: ss-slide-in 0.4s ease;
+    }
+    .submitted-icon {
+      width: 5rem; height: 5rem;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(74,175,77,0.18);
+      border: 2px solid rgba(74,175,77,0.45);
+      box-shadow: 0 0 40px rgba(74,175,77,0.2);
+      animation: ss-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+    }
+    @keyframes ss-pop {
+      from { transform: scale(0); }
+      to   { transform: scale(1); }
+    }
+    .submitted-icon svg { width: 2.5rem; height: 2.5rem; color: var(--verde); }
+
+    .submitted-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 0.75rem;
+    }
+    .submitted-body {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+    .submitted-body strong { color: var(--white); }
+
+    .summary-card {
+      width: 100%;
+      padding: 1.25rem;
+      border-radius: 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .summary-card__amount {
+      font-size: 1.875rem;
+      font-weight: 900;
+      color: var(--naranja);
+      margin-bottom: 0.25rem;
+    }
+    .summary-card__sub { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 0.75rem; }
+    .summary-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+    }
+    .summary-mini-grid__val { font-size: 0.9rem; font-weight: 900; color: var(--white); }
+    .summary-mini-grid__lbl { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+
+    /* ═══════════════════════════════════════════════════════════
+       TOOLTIP
+    ═══════════════════════════════════════════════════════════ */
+    .tooltip-host {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .tooltip-bubble {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.9);
+      background: rgba(21,70,96,0.98);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      pointer-events: none;
+      z-index: 100;
+      white-space: normal;
+    }
+    .tooltip-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(21,70,96,0.98);
+    }
+    .tooltip-host:hover .tooltip-bubble,
+    .tooltip-host:focus-within .tooltip-bubble { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE (mobile-first is already default; below is
+       minor polish for very small screens)
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 400px) {
+      .consumption-display__amount { font-size: 2.4rem; }
+      .roof-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .roof-btn  { padding: 0.75rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     CARD
+═══════════════════════════════════════════════════ -->
+<div class="ss-card" role="main">
+
+  <!-- HEADER -->
+  <header class="ss-header">
+    <div class="ss-header__top">
+      <div>
+        <p class="ss-header__badge">Simulador Solar</p>
+        <h2 class="ss-header__title" id="step-title">Paso 1 de 4</h2>
+      </div>
+      <!-- Step dots -->
+      <div class="step-dots" aria-hidden="true">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot"        id="dot-2"></div>
+        <div class="step-dot"        id="dot-3"></div>
+        <div class="step-dot"        id="dot-4"></div>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <div class="ss-body">
+
+    <!-- ───────────────────────────────────────
+         STEP 1 – COMMUNE
+    ─────────────────────────────────────── -->
+    <section class="ss-step is-active" id="step-1" aria-label="Paso 1: Selección de comuna">
+      <div class="ss-step__heading">
+        <h3>¿Dónde se encuentra tu techo?</h3>
+        <p>Necesitamos tu comuna para calcular la radiación solar exacta en tu zona.</p>
+      </div>
+
+      <!-- Commune dropdown -->
+      <div class="commune-wrap">
+        <button class="commune-toggle" id="commune-toggle" aria-haspopup="listbox" aria-expanded="false" type="button">
+          <span id="commune-selected-label">Selecciona tu comuna...</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="commune-menu" id="commune-menu" role="listbox">
+          <div class="commune-search-wrap">
+            <input class="commune-search" id="commune-search" type="text" placeholder="Buscar comuna..." autocomplete="off" />
+          </div>
+          <ul class="commune-list" id="commune-list" role="presentation">
+            <!-- Options injected by JS -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Radiation info badge (hidden until commune selected) -->
+      <div class="alert alert--green" id="radiation-badge" style="display:none" role="status">
+        <!-- sun icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+        <span id="radiation-text"></span>
+      </div>
+
+      <div class="ss-spacer"></div>
+
+      <button class="btn-primary is-disabled" id="btn-step1-next" type="button" disabled>
+        Continuar
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </section>
+
+    <!-- ───────────────────────────────────────
+         STEP 2 – CONSUMPTION
+    ─────────────────────────────────────── -->
+    <section class="ss-step" id="step-2" aria-label="Paso 2: Consumo mensual">
+      <div class="ss-step__heading">
+        <h3>¿Cuánto pagas de luz actualmente?</h3>
+        <p>Ajusta el monto promedio de tu boleta mensual.</p>
+      </div>
+
+      <div>
+        <div class="consumption-display">
+          <div class="consumption-display__amount" id="consumption-amount">$100.000</div>
+          <div class="consumption-display__label">mensual promedio</div>
+        </div>
+        <div class="slider-wrap">
+          <input class="slider" id="consumption-slider" type="range" min="30000" max="230000" step="5000" value="100000" aria-label="Consumo mensual en pesos" />
+          <div class="slider-labels">
+            <span>$30.000</span>
+            <span>$230.000+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conditional alerts -->
+      <div class="alert alert--green" id="alert-low" style="display:none" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <p>Tu consumo actual es muy eficiente. Hablemos para ver si un proyecto a medida te conviene.</p>
+      </div>
+      <div class="alert alert--orange" id="alert-high" style="display:none" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p><strong>Perfil de alto consumo detectado.</strong> Un ejecutivo senior de proyectos comerciales te contactará con una solución pyme personalizada.</p>
+      </div>
+
+      <div class="ss-spacer"></div>
+      <div class="btn-row">
+        <button class="btn-back" id="btn-step2-back" type="button" aria-label="Volver al paso anterior">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="btn-primary" id="btn-step2-next" type="button">
+          Continuar
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────
+         STEP 3 – ROOF + METER
+    ─────────────────────────────────────── -->
+    <section class="ss-step" id="step-3" aria-label="Paso 3: Techumbre y medidor">
+      <div class="ss-step__heading">
+        <h3>Cuéntanos sobre tu conexión.</h3>
+        <p>Estos detalles definen el kit de montaje y seguridad.</p>
+      </div>
+
+      <!-- Roof type -->
+      <div>
+        <p class="field-label">Tipo de Techo</p>
+        <div class="roof-grid" role="radiogroup" aria-label="Tipo de techo">
+
+          <button class="roof-btn" data-roof="losa" type="button" role="radio" aria-checked="false">
+            <!-- building icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Losa (Plano)
+          </button>
+
+          <button class="roof-btn" data-roof="teja" type="button" role="radio" aria-checked="false">
+            <!-- home icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Teja Chilena
+          </button>
+
+          <button class="roof-btn" data-roof="otro" type="button" role="radio" aria-checked="false">
+            <!-- settings icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Zinc / Eternit
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Meter type -->
+      <div>
+        <div class="field-label">
+          Tipo de Medidor
+          <span class="tooltip-host" tabindex="0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span class="tooltip-bubble">Net Billing: La ley que te permite venderle a la compañía eléctrica la energía que te sobra. Tu casa se vuelve una mini-central eléctrica.</span>
+          </span>
+        </div>
+        <div class="meter-grid" role="radiogroup" aria-label="Tipo de medidor">
+
+          <button class="meter-btn" data-meter="normal" type="button" role="radio" aria-checked="false">
+            <div class="meter-btn__top">
+              <div class="radio-ring"><div class="radio-dot"></div></div>
+              <span class="meter-btn__label">Normal</span>
+            </div>
+            <span class="meter-btn__sub">Dentro de propiedad</span>
+          </button>
+
+          <button class="meter-btn" data-meter="externo" type="button" role="radio" aria-checked="false">
+            <div class="meter-btn__top">
+              <div class="radio-ring"><div class="radio-dot"></div></div>
+              <span class="meter-btn__label">Externo</span>
+            </div>
+            <span class="meter-btn__sub">Reja / Poste</span>
+          </button>
+
+        </div>
+
+        <!-- SEC kit notice (hidden until "externo" selected) -->
+        <div class="alert alert--ocre" id="sec-notice" style="display:none; margin-top:0.75rem" role="note">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div>
+            <p style="font-weight:700;margin-bottom:0.25rem">Kit de Adecuación Normativa SEC</p>
+            <p>Incluye canalización blindada y protecciones adicionales para cumplir con la norma de seguridad en medidores fuera del perímetro. Valor: <strong style="color:rgba(255,255,255,0.8)">$350.000</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ss-spacer"></div>
+      <div class="btn-row">
+        <button class="btn-back" id="btn-step3-back" type="button" aria-label="Volver">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="btn-primary is-disabled" id="btn-step3-next" type="button" disabled>
+          Calcular mi ahorro
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────
+         STEP 4 – LOADING
+    ─────────────────────────────────────── -->
+    <section class="ss-step" id="step-4" aria-label="Paso 4: Calculando diagnóstico" aria-live="polite">
+      <div class="loading-wrap">
+
+        <!-- Animated sun -->
+        <div class="sun-spinner" aria-hidden="true">
+          <div class="sun-rays" id="sun-rays">
+            <!-- 8 rays, rotated 0–315deg each -->
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(0deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(45deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(90deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(135deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(180deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(225deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(270deg)"></div>
+            <div class="sun-ray" style="transform:translateX(-50%) rotate(315deg)"></div>
+          </div>
+          <div class="sun-core" aria-label="Cargando">
+            <!-- sun icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+          </div>
+          <div class="battery-badge" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg>
+          </div>
+        </div>
+
+        <!-- Loading messages list -->
+        <ul class="loading-msgs" id="loading-msgs-list">
+          <li class="loading-msg pending" id="lmsg-0">
+            <div class="msg-icon" id="lmsg-icon-0"><div class="msg-dot pending-dot"></div></div>
+            <p class="msg-text">Analizando histórico de radiación solar en tu comuna...</p>
+          </li>
+          <li class="loading-msg pending" id="lmsg-1">
+            <div class="msg-icon" id="lmsg-icon-1"><div class="msg-dot pending-dot"></div></div>
+            <p class="msg-text">Calculando capacidad de paneles según tu techumbre...</p>
+          </li>
+          <li class="loading-msg pending" id="lmsg-2">
+            <div class="msg-icon" id="lmsg-icon-2"><div class="msg-dot pending-dot"></div></div>
+            <p class="msg-text">Aplicando protocolos de la Doble Garantía Enercity...</p>
+          </li>
+          <li class="loading-msg pending" id="lmsg-3">
+            <div class="msg-icon" id="lmsg-icon-3"><div class="msg-dot pending-dot"></div></div>
+            <p class="msg-text">¡Diagnóstico completado con éxito!</p>
+          </li>
+        </ul>
+
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────
+         STEP 5 – RESULTS + LEAD FORM
+    ─────────────────────────────────────── -->
+    <section class="ss-step" id="step-5" aria-label="Paso 5: Resultados del diagnóstico">
+      <div class="ss-step__heading">
+        <h3>¡Diagnóstico Generado!</h3>
+        <p>Ingresa tus datos para desbloquear tu presupuesto base y descargar el desglose técnico.</p>
+      </div>
+
+      <!-- Results (hidden until calc; JS fills values) -->
+      <div id="results-section">
+        <!-- Annual saving hero -->
+        <div class="saving-hero" style="margin-bottom:0.75rem">
+          <p class="saving-hero__label">Tu potencial de ahorro anual</p>
+          <div class="saving-hero__amount" id="res-annual">$0</div>
+          <div class="saving-hero__bar-row">
+            <div class="coverage-track"><div class="coverage-fill" id="coverage-fill"></div></div>
+            <span class="coverage-label" id="res-coverage">0% independencia</span>
+          </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid" style="margin-bottom:0.75rem">
+
+          <div class="stat-card">
+            <div class="stat-card__label-row">
+              <span class="stat-card__label">Sistema estimado</span>
+              <span class="tooltip-host" tabindex="0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span class="tooltip-bubble">kWp: El tamaño del motor de tu sistema. Indica la potencia máxima que pueden generar tus paneles.</span>
+              </span>
+            </div>
+            <div class="stat-card__value" id="res-kwp">—</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__label-row">
+              <span class="stat-card__label">N° de paneles</span>
+              <span class="tooltip-host" tabindex="0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span class="tooltip-bubble">Paneles de 450W de alta eficiencia monocristalina.</span>
+              </span>
+            </div>
+            <div class="stat-card__value" id="res-panels">—</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__label-row">
+              <span class="stat-card__label">Ahorro mensual</span>
+              <span class="tooltip-host" tabindex="0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span class="tooltip-bubble">Ahorro promedio mensual estimado en tu boleta de electricidad.</span>
+              </span>
+            </div>
+            <div class="stat-card__value" id="res-monthly">—</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__label-row">
+              <span class="stat-card__label">Recuperación ROI</span>
+              <span class="tooltip-host" tabindex="0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span class="tooltip-bubble">Tiempo estimado para recuperar tu inversión con los ahorros generados.</span>
+              </span>
+            </div>
+            <div class="stat-card__value" id="res-roi">—</div>
+          </div>
+
+        </div>
+
+        <!-- SEC notice (conditionally shown) -->
+        <div class="sec-notice" id="res-sec-notice" style="display:none;margin-bottom:0.75rem">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <p>Incluye Kit de Adecuación Normativa SEC ($350.000) por medidor externo.</p>
+        </div>
+      </div>
+
+      <!-- Lead form -->
+      <form class="lead-form" id="lead-form" novalidate>
+        <input class="lead-input" name="name"  type="text"  placeholder="Tu Nombre"           required autocomplete="name" />
+        <input class="lead-input" name="email" type="email" placeholder="Correo Electrónico"  required autocomplete="email" />
+        <input class="lead-input" name="phone" type="tel"   placeholder="Teléfono / WhatsApp" required autocomplete="tel" />
+        <button class="btn-primary" type="submit">
+          Ver mi ahorro y presupuesto
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ───────────────────────────────────────
+         SUBMITTED STATE
+    ─────────────────────────────────────── -->
+    <section class="ss-step" id="step-done" aria-label="Diagnóstico enviado exitosamente">
+      <div class="submitted-wrap">
+
+        <div class="submitted-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+
+        <div>
+          <h3 class="submitted-title">☀️ ¡Diagnóstico enviado!</h3>
+          <p class="submitted-body">
+            Hola <strong id="done-name"></strong>, uno de nuestros especialistas revisará tu caso y te contactará para agendar una validación técnica en terreno sin costo.
+          </p>
+        </div>
+
+        <div class="summary-card">
+          <div style="text-align:center">
+            <p class="summary-card__sub">Tu potencial de ahorro anual</p>
+            <div class="summary-card__amount" id="done-annual"></div>
+          </div>
+          <div class="summary-mini-grid">
+            <div>
+              <div class="summary-mini-grid__val" id="done-kwp"></div>
+              <div class="summary-mini-grid__lbl">Sistema</div>
+            </div>
+            <div>
+              <div class="summary-mini-grid__val" id="done-roi"></div>
+              <div class="summary-mini-grid__lbl">ROI estimado</div>
+            </div>
+          </div>
+        </div>
+
+        <a class="btn-whatsapp" id="whatsapp-link" href="#" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Chatea con un ingeniero ahora
+        </a>
+
+      </div>
+    </section>
+
+  </div><!-- /.ss-body -->
+</div><!-- /.ss-card -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT  (vanilla – no dependencies)
+═══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Data ─────────────────────────────────────────────────── */
+const COMMUNES = [
+  'Santiago','Providencia','Las Condes','Vitacura','Ñuñoa','La Florida',
+  'Maipú','Pudahuel','Quilicura','Renca','San Bernardo','Puente Alto',
+  'La Granja','La Cisterna','El Bosque','Conchalí','Huechuraba','Recoleta',
+  'Independencia','Cerrillos','Valparaíso','Viña del Mar','Concepción',
+  'Talca','Antofagasta','Iquique','Rancagua','Puerto Montt','Temuco',
+  'Copiapó','La Serena','Calama','Osorno','Punta Arenas','Arica'
+];
+const RADIATION = {
+  Antofagasta:7.8,Iquique:7.5,Calama:8.1,Arica:7.9,Copiapó:7.2,
+  'La Serena':6.5,Valparaíso:5.8,'Viña del Mar':5.8,Santiago:5.5,
+  Providencia:5.5,'Las Condes':5.5,Vitacura:5.5,Ñuñoa:5.5,
+  'La Florida':5.4,Maipú:5.4,Pudahuel:5.3,Quilicura:5.3,Renca:5.3,
+  'San Bernardo':5.2,'Puente Alto':5.2,'La Granja':5.3,'La Cisterna':5.3,
+  'El Bosque':5.2,Conchalí:5.3,Huechuraba:5.3,Recoleta:5.3,
+  Independencia:5.3,Cerrillos:5.3,Rancagua:5.1,Talca:4.8,
+  Concepción:4.2,Temuco:3.9,Osorno:3.5,'Puerto Montt':3.2,'Punta Arenas':2.5
+};
+
+/* ── State ─────────────────────────────────────────────────── */
+const state = {
+  step: 1,
+  commune: '',
+  consumption: 100000,
+  roofType: '',
+  meterType: '',
+  name: '', email: '', phone: '',
+  results: null
+};
+
+/* ── Helpers ───────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const clp = n => '$' + n.toLocaleString('es-CL');
+
+function calcResults() {
+  const rad = RADIATION[state.commune] || 5.0;
+  const monthlyKwh = state.consumption / 175;
+  const annualKwh  = monthlyKwh * 12;
+  const kwp        = annualKwh / (rad * 365 * 0.8);
+  const panels     = Math.ceil(kwp / 0.45);
+  const actualKwp  = panels * 0.45;
+  const annualGen  = actualKwp * rad * 365 * 0.8;
+  const coverage   = Math.min(annualGen / annualKwh, 0.95);
+  const annualSave = Math.round(state.consumption * 12 * coverage);
+  const investment = Math.round(panels * 420000 + (state.meterType === 'externo' ? 350000 : 0));
+  return {
+    panels,
+    kwp:           Math.round(actualKwp * 10) / 10,
+    annualSaving:  annualSave,
+    monthlySaving: Math.round(annualSave / 12),
+    roiYears:      Math.round(investment / annualSave * 10) / 10,
+    coveragePercent: Math.round(coverage * 100),
+    needsAdaptKit: state.meterType === 'externo'
+  };
+}
+
+/* animated counter */
+function animateCounter(el, target, prefix = '', suffix = '', duration = 1500) {
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = prefix + Math.round(eased * target).toLocaleString('es-CL') + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ── Routing ───────────────────────────────────────────────── */
+function goTo(stepId) {
+  /* hide current */
+  document.querySelectorAll('.ss-step').forEach(s => s.classList.remove('is-active'));
+  /* show target */
+  const el = $(stepId);
+  if (el) el.classList.add('is-active');
+  state.step = parseInt(stepId.replace('step-', '')) || 0;
+
+  /* update header */
+  const isResults = stepId === 'step-5' || stepId === 'step-done';
+  const isFinal   = stepId === 'step-done';
+
+  $('step-title').textContent = isFinal
+    ? '¡Diagnóstico listo!'
+    : (state.step <= 4 ? 'Paso ' + state.step + ' de 4' : 'Paso 4 de 4');
+
+  /* progress (steps 1-4 → 0-100%) */
+  const pct = state.step <= 4 ? (state.step - 1) / 3 * 100 : 100;
+  $('progress-fill').style.width = (isResults ? 100 : pct) + '%';
+  $('progress-fill').style.display = isFinal ? 'none' : 'block';
+
+  /* dots */
+  const activeStep = Math.min(state.step, 4);
+  for (let i = 1; i <= 4; i++) {
+    const dot = $('dot-' + i);
+    dot.classList.remove('active', 'done');
+    if (i === activeStep)      dot.classList.add('active');
+    else if (i < activeStep)   dot.classList.add('done');
+  }
+}
+
+/* ── Step 1: Commune Dropdown ──────────────────────────────── */
+(function() {
+  const toggle = $('commune-toggle');
+  const menu   = $('commune-menu');
+  const search = $('commune-search');
+  const list   = $('commune-list');
+
+  function renderList(filter) {
+    const matches = COMMUNES.filter(c => c.toLowerCase().includes(filter.toLowerCase()));
+    list.innerHTML = matches.map(c =>
+      '<li><button class="commune-item' + (state.commune === c ? ' selected' : '') +
+      '" data-val="' + c + '" type="button">' + c + '</button></li>'
+    ).join('');
+  }
+  renderList('');
+
+  toggle.addEventListener('click', () => {
+    const isOpen = menu.classList.toggle('is-open');
+    toggle.classList.toggle('is-open', isOpen);
+    toggle.setAttribute('aria-expanded', isOpen);
+    if (isOpen) { search.value = ''; renderList(''); setTimeout(() => search.focus(), 50); }
+  });
+
+  search.addEventListener('input', () => renderList(search.value));
+
+  list.addEventListener('click', e => {
+    const btn = e.target.closest('[data-val]');
+    if (!btn) return;
+    state.commune = btn.dataset.val;
+    $('commune-selected-label').textContent = state.commune;
+    toggle.classList.add('has-value');
+    menu.classList.remove('is-open');
+    toggle.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+
+    /* radiation badge */
+    const rad = RADIATION[state.commune] || 5.0;
+    $('radiation-text').textContent =
+      'Radiación solar en ' + state.commune + ': ' + rad + ' kWh/m²/día';
+    $('radiation-badge').style.display = 'flex';
+
+    /* enable next */
+    const btn1 = $('btn-step1-next');
+    btn1.disabled = false;
+    btn1.classList.remove('is-disabled');
+  });
+
+  /* close on outside click */
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.commune-wrap')) {
+      menu.classList.remove('is-open');
+      toggle.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  $('btn-step1-next').addEventListener('click', () => {
+    if (state.commune) goTo('step-2');
+  });
+})();
+
+/* ── Step 2: Slider ────────────────────────────────────────── */
+(function() {
+  const slider = $('consumption-slider');
+  const amount = $('consumption-amount');
+  const alertL = $('alert-low');
+  const alertH = $('alert-high');
+
+  function update() {
+    const v = +slider.value;
+    state.consumption = v;
+    amount.textContent = v >= 230000 ? '$230.000+' : clp(v);
+    /* gradient */
+    const pct = (v - 30000) / 200000 * 100;
+    slider.style.background =
+      'linear-gradient(to right, #F07E04 0%, #F07E04 ' + pct + '%, rgba(255,255,255,0.15) ' + pct + '%, rgba(255,255,255,0.15) 100%)';
+    alertL.style.display = v < 50000  ? 'flex' : 'none';
+    alertH.style.display = v > 230000 ? 'flex' : 'none';
+  }
+  slider.addEventListener('input', update);
+  update(); /* init */
+
+  $('btn-step2-back').addEventListener('click', () => goTo('step-1'));
+  $('btn-step2-next').addEventListener('click', () => goTo('step-3'));
+})();
+
+/* ── Step 3: Roof + Meter ──────────────────────────────────── */
+(function() {
+  function checkStep3() {
+    const ok = state.roofType && state.meterType;
+    const btn = $('btn-step3-next');
+    btn.disabled = !ok;
+    btn.classList.toggle('is-disabled', !ok);
+  }
+
+  document.querySelectorAll('[data-roof]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.roofType = btn.dataset.roof;
+      document.querySelectorAll('[data-roof]').forEach(b => {
+        b.classList.toggle('selected', b.dataset.roof === state.roofType);
+        b.setAttribute('aria-checked', b.dataset.roof === state.roofType);
+      });
+      checkStep3();
+    });
+  });
+
+  document.querySelectorAll('[data-meter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.meterType = btn.dataset.meter;
+      document.querySelectorAll('[data-meter]').forEach(b => {
+        b.classList.toggle('selected', b.dataset.meter === state.meterType);
+        b.setAttribute('aria-checked', b.dataset.meter === state.meterType);
+      });
+      $('sec-notice').style.display = state.meterType === 'externo' ? 'flex' : 'none';
+      checkStep3();
+    });
+  });
+
+  $('btn-step3-back').addEventListener('click', () => goTo('step-2'));
+  $('btn-step3-next').addEventListener('click', () => {
+    if (state.roofType && state.meterType) startLoading();
+  });
+})();
+
+/* ── Step 4: Loading Sequence ──────────────────────────────── */
+function startLoading() {
+  goTo('step-4');
+  const msgs = document.querySelectorAll('.loading-msg');
+  const icons = document.querySelectorAll('[id^="lmsg-icon-"]');
+
+  /* reset */
+  msgs.forEach(m => m.classList.add('pending'));
+  icons.forEach(ic => {
+    ic.className = 'msg-icon';
+    ic.innerHTML = '<div class="msg-dot pending-dot"></div>';
+  });
+
+  const DELAYS = [0, 1100, 2200, 3300];
+  DELAYS.forEach((delay, i) => {
+    setTimeout(() => {
+      /* activate current */
+      msgs[i].classList.remove('pending');
+      icons[i].className = 'msg-icon active';
+      icons[i].innerHTML = '<div class="msg-dot active-dot"></div>';
+
+      /* mark previous as done */
+      if (i > 0) {
+        icons[i - 1].className = 'msg-icon done';
+        icons[i - 1].innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      }
+    }, delay);
+  });
+
+  /* finish */
+  setTimeout(() => {
+    /* mark last as done */
+    const lastIcon = $('lmsg-icon-3');
+    lastIcon.className = 'msg-icon done';
+    lastIcon.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+    setTimeout(() => {
+      state.results = calcResults();
+      populateResults();
+      goTo('step-5');
+    }, 800);
+  }, 3300 + 1100);
+}
+
+/* ── Step 5: Populate Results ──────────────────────────────── */
+function populateResults() {
+  const r = state.results;
+  /* animated counter for annual saving */
+  const annualEl = $('res-annual');
+  animateCounter(annualEl, r.annualSaving, '$');
+
+  $('res-kwp').textContent    = r.kwp + ' kWp';
+  $('res-panels').textContent = r.panels + ' paneles';
+  $('res-monthly').textContent = clp(r.monthlySaving);
+  $('res-roi').textContent    = r.roiYears + ' años';
+  $('res-coverage').textContent = r.coveragePercent + '% independencia';
+  $('res-sec-notice').style.display = r.needsAdaptKit ? 'flex' : 'none';
+
+  /* animate coverage bar */
+  setTimeout(() => {
+    $('coverage-fill').style.width = r.coveragePercent + '%';
+  }, 500);
+}
+
+/* ── Lead Form Submit ──────────────────────────────────────── */
+$('lead-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  state.name  = fd.get('name');
+  state.email = fd.get('email');
+  state.phone = fd.get('phone');
+
+  const r = state.results;
+  $('done-name').textContent   = state.name;
+  $('done-annual').textContent = clp(r.annualSaving);
+  $('done-kwp').textContent    = r.kwp + ' kWp';
+  $('done-roi').textContent    = r.roiYears + ' años';
+
+  const msg = encodeURIComponent(
+    'Hola, acabo de completar el simulador de Enercity. Mi nombre es ' +
+    state.name + ' y me interesa validar mi diagnóstico.'
+  );
+  $('whatsapp-link').href = 'https://wa.me/56912345678?text=' + msg;
+
+  goTo('step-done');
+});
+</script>
+</body>
+</html>
