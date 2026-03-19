@@ -1,23 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Sun } from 'lucide-react';
+import { Menu, X, Sun, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import logoEnercity from '/src/assets/logoEnercity.png'; 
+
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Efecto para cambiar el estilo al hacer scroll
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const scrollToSimulator = () => {
-    const el = document.getElementById('simulador-section');
-    el?.scrollIntoView({ behavior: 'smooth' });
-    setIsMenuOpen(false);
-  };
 
   const navLinks = [
     { name: 'Inicio', href: '#inicio' },
@@ -27,85 +22,99 @@ export function Navbar() {
   ];
 
   return (
-    <div className={`fixed w-full z-50 transition-all duration-500 px-6 ${scrolled ? 'top-4' : 'top-0'}`}>
-      <nav className={`mx-auto max-w-7xl transition-all duration-500 border border-white/10 
-        ${scrolled 
-          ? 'bg-[#0A1929]/80 backdrop-blur-md rounded-2xl py-3 px-6 shadow-2xl' 
-          : 'bg-transparent py-6 px-0 border-transparent'}`}>
-        
-        <div className="flex justify-between items-center gap-6">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <div className="relative w-8 h-8 flex items-center justify-center">
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 border-2 border-dashed border-[#F09C0A] rounded-full" 
-              />
-              <Sun className="w-5 h-5 text-[#F09C0A]" fill="#F09C0A" />
-            </div>
-            <span className="font-black text-white tracking-tighter text-xl">ENERCITY</span>
+    // Contenedor centrado con ancho automático
+    <div className="fixed w-full z-50 flex justify-center px-6 transition-all duration-500 pointer-events-none">
+      <motion.nav
+        initial={false}
+        animate={{
+          width: scrolled ? 'auto' : '100%',
+          maxWidth: scrolled ? 'fit-content' : '1280px',
+          marginTop: scrolled ? '1.5rem' : '0rem',
+        }}
+        className={`
+          pointer-events-auto flex items-center transition-all duration-500 
+          ${scrolled 
+            ? 'bg-[#154660]/90 backdrop-blur-xl rounded-full py-2.5 px-6 shadow-[0_8px_40px_rgba(21,70,96,0.45)]' 
+            : 'bg-transparent py-6 px-4 border-transparent'}
+        `}
+      >
+        <div className="flex justify-between items-center gap-8 w-full">
+          
+          {/* LOGO: Aquí puedes swappear por <img src="/logo.svg" /> */}
+          <div className="flex items-center gap-2.5 shrink-0 cursor-pointer">
+            
+            <img 
+            src={logoEnercity.src} 
+            alt="Enercity Logo" 
+            className="w-[150px] h-auto  object-contain relative z-10" 
+          />
           </div>
 
-          {/* Desktop Nav Links */}
+          {/* DESKTOP LINKS */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a 
                 key={link.name}
                 href={link.href} 
-                className="text-sm font-medium text-white/80 hover:text-[#F09C0A] transition-colors"
+                className="text-sm font-medium text-white/70 hover:text-white transition-colors font-[Rubik]"
               >
                 {link.name}
               </a>
             ))}
+            
+            {/* BOTÓN SIMULAR ESTILO ENERCITY */}
             <button 
-              onClick={scrollToSimulator}
-              className="bg-[#4AAF4D] hover:bg-[#3d8f3f] text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all transform hover:scale-105 active:scale-95"
+              onClick={() => document.getElementById('simulador-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-[#F07E04] hover:bg-[#F09C0A] text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-[0_4px_20px_rgba(240,126,4,0.33)] active:scale-95 flex items-center gap-2 group font-[Rubik]"
             >
-              Simular mi ahorro
+              Simular Ahorro
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* MOBILE TOGGLE */}
           <button 
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white p-1"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* MOBILE MENU DROPDOWN (Estilo Card) */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden bg-[#0A1929] border border-white/10 shadow-2xl md:hidden"
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="absolute top-[calc(100%+12px)] left-0 right-0 bg-[#154660] border border-white/10 p-6 rounded-[2rem] shadow-2xl md:hidden mx-6"
             >
-              <div className="flex flex-col p-6 gap-5">
+              <div className="flex flex-col gap-4">
                 {navLinks.map((link) => (
                   <a 
                     key={link.name}
                     href={link.href} 
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-lg font-medium text-white/70 hover:text-[#F09C0A]"
+                    className="text-lg font-bold text-white/80 hover:text-[#F07E04] py-2 border-b border-white/5 font-[Rubik]"
                   >
                     {link.name}
                   </a>
                 ))}
                 <button 
-                  onClick={scrollToSimulator}
-                  className="w-full bg-[#4AAF4D] text-white py-4 rounded-xl font-bold text-center"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    document.getElementById('simulador-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full bg-[#F07E04] text-white py-4 rounded-2xl font-black text-center shadow-lg mt-2 font-[Rubik]"
                 >
-                  Simular mi ahorro ahora
+                  SIMULAR MI AHORRO AHORA
                 </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </nav>
+      </motion.nav>
     </div>
   );
 }

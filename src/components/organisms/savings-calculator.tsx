@@ -17,7 +17,14 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import styles from "./savings-calculator.module.css";
-import { Check, ChevronLeft, ChevronRight, Loader2, Info, Zap, BarChart3, Shield, Sun } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, Info, Zap, BarChart3, Shield, Sun,
+Building, 
+  House, 
+  Settings, 
+  ShieldCheck, 
+  ShieldAlert
+
+ } from 'lucide-react';
 
 interface Comuna {
   id: number;
@@ -132,6 +139,8 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
     telefono: "",
   });
 
+  
+
   const canProceed = () => {
     switch (step) {
       case 1:
@@ -238,6 +247,9 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
     }
   };
 
+
+
+  
 const renderStepContent = () => {
     switch (step) {
       case 1:
@@ -366,78 +378,133 @@ const renderStepContent = () => {
           </motion.div>
         );
 
-      case 3:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-8"
-          >
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-white">Detalles de instalación</h3>
-              <p className="text-white/60 text-sm">Configuración final de tu sistema</p>
-            </div>
+    
+case 3:
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-8"
+    >
+      <div className="text-center space-y-2">
+        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Configuración Técnica</h3>
+        <p className="text-white/40 text-xs italic">Detalles finales para tu presupuesto certificado SEC.</p>
+      </div>
 
-            <div className="space-y-6">
-              {/* Cards de Techo */}
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-1">Tipo de Techo</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {TIPOS_TECHO.map((t) => (
-                    <button
-                      key={t.value}
-                      onClick={() => setFormData({ ...formData, tipoTecho: t.value as TipoTecho })}
-                      className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                        formData.tipoTecho === t.value ? "border-[#F07E04] bg-[#F07E04]/10 shadow-[0_0_15px_rgba(240,126,4,0.1)]" : "border-white/5 bg-white/5"
-                      }`}
-                    >
-                      <span className="text-2xl">{t.value === 'Losa' ? '🏢' : t.value === 'Teja Chilena' ? '🏠' : '⚙️'}</span>
-                      <span className="text-[10px] font-black uppercase text-white">{t.label}</span>
-                    </button>
-                  ))}
+      {/* SELECCIÓN DE TECHO (Building | House | Settings) */}
+      <div className="space-y-4">
+        <label className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-2">Tipo de Techumbre</label>
+        <div className="grid grid-cols-3 gap-3">
+          {TIPOS_TECHO.map((techo) => (
+            <button
+              key={techo.value}
+              onClick={() => setFormData({ ...formData, tipoTecho: techo.value as TipoTecho })}
+              className={cn(
+                "p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 text-center group",
+                formData.tipoTecho === techo.value 
+                  ? "border-[#F07E04] bg-[#F07E04]/10 text-white shadow-[0_0_20px_rgba(240,126,4,0.15)]" 
+                  : "border-white/5 bg-white/5 text-white/40 hover:border-white/20"
+              )}
+            >
+              <div className={cn(
+                "transition-transform duration-300 group-hover:scale-110",
+                formData.tipoTecho === techo.value ? "text-[#F07E04]" : "text-white/20 group-hover:text-white/40"
+              )}>
+                {techo.value === "Losa" && <Building className="w-6 h-6 stroke-[1.5]" />}
+                {techo.value === "Teja Chilena" && <House className="w-6 h-6 stroke-[1.5]" />}
+                {techo.value === "Otro" && <Settings className="w-6 h-6 stroke-[1.5]" />}
+              </div>
+              <span className="text-[10px] font-black uppercase leading-tight tracking-wider">
+                {techo.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* UBICACIÓN DEL MEDIDOR */}
+      <div className="space-y-4">
+        <label className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-2">Ubicación del Medidor</label>
+        <div className="grid grid-cols-2 gap-3">
+          {TIPOS_MEDIDOR.map((medidor) => (
+            <button
+              key={medidor.value}
+              onClick={() => setFormData({ ...formData, tipoMedidor: medidor.value as TipoMedidor })}
+              className={cn(
+                "p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 text-center group",
+                formData.tipoMedidor === medidor.value 
+                  ? "border-[#F07E04] bg-[#F07E04]/10 text-white shadow-[0_0_20px_rgba(240,126,4,0.1)]" 
+                  : "border-white/5 bg-white/5 text-white/40 hover:border-white/20"
+              )}
+            >
+              <div className={cn(
+                "transition-colors",
+                formData.tipoMedidor === medidor.value ? "text-[#F07E04]" : "text-white/20 group-hover:text-white/40"
+              )}>
+                {medidor.value === "Normal" ? <ShieldCheck className="w-6 h-6 stroke-[1.5]" /> : <ShieldAlert className="w-6 h-6 stroke-[1.5]" />}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-black uppercase tracking-widest">{medidor.label}</span>
+                <span className="text-[9px] opacity-40 font-bold uppercase tracking-tighter">
+                  {medidor.value === "Normal" ? "Interior Propiedad" : "Perímetro Exterior"}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* ALERTA KIT ADECUACIÓN SEC */}
+        <AnimatePresence>
+          {formData.tipoMedidor === "Reja/Fuera" && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="bg-[#F07E04]/10 border border-[#F07E04]/30 p-5 rounded-3xl mt-2 relative overflow-hidden group">
+                <div className="relative z-10 space-y-2">
+                  <div className="flex items-center gap-2 text-[#F07E04]">
+                    <ShieldAlert className="w-4 h-4" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.15em]">Kit de Adecuación Normativa SEC</span>
+                  </div>
+                  <p className="text-white/60 text-[11px] leading-relaxed italic">
+                    Incluye canalización blindada y protecciones adicionales para cumplir con la norma de seguridad en medidores fuera del perímetro.
+                  </p>
+                  <div className="pt-2 flex justify-between items-center border-t border-white/5 mt-1">
+                    <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Valor Adicional</span>
+                    <span className="text-sm font-black text-white">$350.000</span>
+                  </div>
                 </div>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-              {/* Cards de Medidor */}
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-1">Ubicación Medidor</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {TIPOS_MEDIDOR.map((m) => (
-                    <button
-                      key={m.value}
-                      onClick={() => setFormData({ ...formData, tipoMedidor: m.value as TipoMedidor })}
-                      className={`p-4 rounded-2xl border-2 text-left transition-all ${
-                        formData.tipoMedidor === m.value ? "border-[#F07E04] bg-[#F07E04]/10" : "border-white/5 bg-white/5"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData.tipoMedidor === m.value ? "border-[#F07E04]" : "border-white/20"}`}>
-                          {formData.tipoMedidor === m.value && <div className="w-2 h-2 bg-[#F07E04] rounded-full" />}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-bold text-white">{m.label}</span>
-                          <span className="text-[9px] text-white/40 font-bold uppercase">{m.value === 'Normal' ? 'Interior' : 'Exterior'}</span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button onClick={handleBack} className="w-16 h-14 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white"><ChevronLeft /></button>
-              <button 
-                onClick={handleNext} 
-                disabled={isCalculating}
-                className="flex-grow bg-[#F07E04] text-white font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-[#F09C0A]"
-              >
-                {isCalculating ? <Loader2 className="animate-spin" /> : "CALCULAR AHORRO →"}
-              </button>
-            </div>
-          </motion.div>
-        );
+      {/* NAVEGACIÓN */}
+      <div className="flex gap-4 pt-4">
+        <button 
+          onClick={handleBack} 
+          className="w-16 h-14 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6 stroke-[1.5]" />
+        </button>
+        <button 
+          onClick={handleNext} 
+          disabled={isCalculating || !canProceed()}
+          className="flex-grow bg-[#F07E04] text-white font-black rounded-2xl hover:bg-[#F09C0A] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#F07E04]/20"
+        >
+          {isCalculating ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>VER RESULTADOS <ChevronRight className="w-5 h-5 stroke-[2]" /></>
+          )}
+        </button>
+      </div>
+    </motion.div>
+  );
       
       case 4:
         return (
@@ -484,6 +551,7 @@ const renderResults = () => {
   const comuna = result.datosComuna!;
   const resumen = result.resumenInversion!;
   const clasificacionStyles = getClasificacionStyles(resumen.clasificacion);
+  
 
   if (leadCreated) {
     return (
