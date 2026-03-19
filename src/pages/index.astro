@@ -28,15 +28,15 @@ const hasErrors = !!comunasError;
 ---
 
 <Layout title="Enercity - Energia Solar para Chile">
-  <Navbar client:load />
+  <Navbar />
   
   <main>
-    <Hero />
-    <StatsBar />
-    <FeatureIndustrial />
-    <SolutionsGrid />
-    <GuaranteeBanner />
-    
+    <Hero client:load/>
+    <StatsBar client:visible/>
+    <FeatureIndustrial client:visible/>
+    <SolutionsGrid client:visible/>
+    <GuaranteeBanner client:visible/>
+    {{hasErrors}}
     {hasErrors ? (
       <section className="py-20 bg-gray-50" id="simulador">
         <div className="container mx-auto px-4 text-center">

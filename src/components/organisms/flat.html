@@ -1,0 +1,606 @@
+<!-- ENERCITY LANDING PAGE -->
+<div class="min-h-screen bg-white text-[#154660] selection:bg-[#F07E04] selection:text-white overflow-x-hidden">
+
+  <!-- ── FLOATING NAVIGATION ──────────────────────────────────────────── -->
+  <div class="fixed z-50 transition-all duration-500">
+    <nav>
+      <div class="flex justify-between items-center gap-6">
+        <!-- Logo -->
+        <div class="flex items-center gap-2.5 shrink-0">
+          <div class="relative w-8 h-8">
+            <motion.div class="border-2 border-dashed rounded-full" />
+            <Sun class="w-5 h-5" fill="#F09C0A" />
+          </div>
+          <span class="font-black text-white tracking-tighter text-xl">ENERCITY</span>
+        </div>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex items-center gap-6">
+          <a href="#inicio">Inicio</a>
+          <a href="#nosotros">Nosotros</a>
+          <a href="#soluciones">Soluciones</a>
+          <a href="#simulador-section">Simulador</a>
+          <button onClick={scrollToSimulator}>Simular mi ahorro</button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-white">
+          {isMenuOpen ? <X /> : <Menu />}
+        </button>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <AnimatePresence>
+        {isMenuOpen && (
+          <div class="mt-2 mx-4 rounded-2xl overflow-hidden">
+            <div class="flex flex-col p-5 gap-4">
+              <a href="#inicio">Inicio</a>
+              <a href="#nosotros">Nosotros</a>
+              <a href="#soluciones">Soluciones</a>
+              <a href="#simulador-section">Simulador</a>
+              <button onClick={scrollToSimulator}>Simular mi ahorro ahora</button>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+    </nav>
+  </div>
+
+  <!-- ── HERO SECTION ────────────────────────────────────────────────────────── -->
+  <section id="inicio" class="relative h-screen flex items-center overflow-hidden">
+    <!-- Background Image + Gradient Overlay -->
+    <motion.div class="absolute inset-0 w-full h-full">
+      <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d" alt="Granja solar" />
+      <div class="absolute inset-0 bg-gradient-to-b from-[rgba(21,70,96,0.68)] to-[rgba(21,70,96,0.82)]" />
+    </motion.div>
+
+    <!-- Floating Particles -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* 5 animated particle divs */}
+    </div>
+
+    <!-- Hero Content -->
+    <motion.div class="container mx-auto px-6 relative z-10">
+      <div class="max-w-3xl">
+        <!-- Badge -->
+        <motion.div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6">
+          <div class="w-2 h-2 rounded-full animate-pulse" />
+          <span class="text-sm font-bold tracking-widest uppercase">
+            8 años de ingeniería fotovoltaica
+          </span>
+        </motion.div>
+
+        <!-- Headline -->
+        <motion.h1 class="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-6">
+          Tu inversión solar garantizada <span style={{color: '#F07E04'}}>hasta que se pague sola.</span>
+        </motion.h1>
+
+        <!-- Subheadline -->
+        <motion.p class="text-xl text-white/75 mb-10 leading-relaxed max-w-xl">
+          Expertos en ingeniería fotovoltaica con 8 años de trayectoria. Diseñamos soluciones que generan ahorro real.
+        </motion.p>
+
+        <!-- CTAs -->
+        <motion.div class="flex flex-col sm:flex-row gap-4">
+          <button onClick={scrollToSimulator} class="flex items-center justify-center gap-2 px-10 py-4 rounded-xl font-black text-lg text-white">
+            Simular mi ahorro ahora <ArrowRight />
+          </button>
+          <a href="#proyectos" class="px-10 py-4 rounded-xl font-bold text-lg text-white">
+            Ver proyectos industriales
+          </a>
+        </motion.div>
+      </div>
+
+      <!-- Floating Stat Badge (Desktop Only) -->
+      <motion.div class="absolute right-6 top-1/2 -translate-y-1/2 hidden lg:block p-5 rounded-2xl">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center">
+            <Zap class="w-6 h-6" fill="#4AAF4D" />
+          </div>
+          <div>
+            <div class="text-2xl font-black text-white">Doble</div>
+            <div class="text-white/60 text-sm">Garantía</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="rounded-xl p-3">
+            <div class="font-black text-white text-lg">120</div>
+            <div class="text-white/50 text-xs">meses ROI</div>
+          </div>
+          <div class="rounded-xl p-3">
+            <div class="font-black text-white text-lg">10</div>
+            <div class="text-white/50 text-xs">años soporte</div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+
+    <!-- Scroll Indicator -->
+    <motion.div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+      <span class="text-white/50 text-xs tracking-widest uppercase">Scroll</span>
+      <div class="w-px h-10 bg-gradient-to-b from-white/40 to-transparent" />
+    </motion.div>
+  </section>
+
+  <!-- ── STATS BAR ───────────────────────────────────────────────────── -->
+  <section class="bg-white border-b border-gray-100 py-12">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="text-center p-4">
+          <div class="text-4xl font-bold text-[#F07E04] mb-2">500+</div>
+          <div class="font-medium uppercase tracking-wider text-sm text-[#154660]">Proyectos Instalados</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-4xl font-bold text-[#F07E04] mb-2">15MW</div>
+          <div class="font-medium uppercase tracking-wider text-sm text-[#154660]">Capacidad Generada</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-4xl font-bold text-[#F07E04] mb-2">8+</div>
+          <div class="font-medium uppercase tracking-wider text-sm text-[#154660]">Años Experiencia</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-4xl font-bold text-[#F07E04] mb-2">99%</div>
+          <div class="font-medium uppercase tracking-wider text-sm text-[#154660]">Clientes Satisfechos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOCIAL PROOF: Project Carousel ──────────────────────────────── -->
+  <section id="nosotros" class="py-24 bg-[#F8FAFC]">
+    <div class="container mx-auto px-6">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        
+        <!-- Image Carousel (slides horizontally) -->
+        <motion.div class="relative">
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
+            <AnimatePresence mode="wait">
+              <motion.img 
+                key={PROJECTS[activeProject].id}
+                src={PROJECTS[activeProject].image}
+                alt={PROJECTS[activeProject].alt}
+                class="w-full h-full object-cover"
+                initial={{opacity: 0, x: 60}}
+                animate={{opacity: 1, x: 0}}
+                exit={{opacity: 0, x: -60}}
+              />
+            </AnimatePresence>
+            
+            <div class="absolute inset-0 bg-gradient-to-br from-[rgba(21,70,96,0.4)] to-transparent" />
+            
+            <!-- Project Label Badge -->
+            <div class="absolute bottom-4 left-4 px-4 py-2.5 rounded-xl flex items-center gap-2">
+              <Building2 class="w-4 h-4 shrink-0" />
+              <AnimatePresence mode="wait">
+                <motion.span key={PROJECTS[activeProject].id + '-label'}>
+                  {PROJECTS[activeProject].name} · {PROJECTS[activeProject].type}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            <!-- Prev / Next Arrows -->
+            <div class="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3 pointer-events-none">
+              <button onClick={goPrev} class="pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center">
+                <ChevronLeft class="w-4 h-4 text-white" />
+              </button>
+              <button onClick={goNext} class="pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center">
+                <ChevronRight class="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Floating Saving Badge -->
+          <motion.div animate={{y: [0, -8, 0]}} class="absolute -top-5 -right-5 hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+              <Leaf class="w-5 h-5" />
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div key={PROJECTS[activeProject].id + '-badge'}>
+                <div class="font-black text-lg text-[#154660]">{PROJECTS[activeProject].saving}</div>
+                <div class="text-xs text-gray-500">{PROJECTS[activeProject].savingLabel}</div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+
+          <!-- Dot Indicators -->
+          <div class="flex items-center justify-center gap-2 mt-5">
+            {PROJECTS.map((p, i) => (
+              <button 
+                key={p.id}
+                onClick={() => setActiveProject(i)}
+                class="transition-all duration-300 h-2 rounded-full"
+                style={{
+                  width: i === activeProject ? '24px' : '8px',
+                  background: i === activeProject ? '#F07E04' : 'rgba(21,70,96,0.15)'
+                }}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        <!-- Copy Text (Static) -->
+        <motion.div>
+          <p class="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F07E04]">
+            Confianza de Escala Industrial
+          </p>
+          <h2 class="text-4xl md:text-5xl font-black leading-tight mb-6 text-[#154660]">
+            Si lo hacemos para grandes plantas,{' '}
+            <span style={{color: '#F07E04'}}>imagina lo que hacemos por ti.</span>
+          </h2>
+          <p class="text-lg text-gray-600 leading-relaxed mb-8">
+            Desde pastelerías industriales hasta clínicas, viñas y centros comerciales — cada proyecto que ejecutamos lleva el mismo rigor de ingeniería certificada.
+          </p>
+
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-[#4AAF4D15]">
+                <CheckCircle2 class="w-5 h-5 text-[#4AAF4D]" />
+              </div>
+              <span class="text-gray-700 font-medium">Ingeniería de precisión para residencias e industrias</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-[#4AAF4D15]">
+                <ShieldCheck class="w-5 h-5 text-[#4AAF4D]" />
+              </div>
+              <span class="text-gray-700 font-medium">Instalaciones certificadas bajo normativa SEC</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-[#4AAF4D15]">
+                <BarChart3 class="w-5 h-5 text-[#4AAF4D]" />
+              </div>
+              <span class="text-gray-700 font-medium">ROI documentado en cada proyecto entregado</span>
+            </div>
+          </div>
+        </motion.div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOLUTIONS: 4 Cards ──────────────────────────────────────────── -->
+  <section id="soluciones" class="py-24 bg-white">
+    <div class="container mx-auto px-6">
+      
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <p class="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F07E04]">
+          Nuestras Soluciones
+        </p>
+        <h2 class="text-4xl md:text-5xl font-black mb-6 text-[#154660]">
+          Cuatro soluciones, un solo objetivo:{' '}
+          <span style={{color: '#F07E04'}}>tu independencia energética.</span>
+        </h2>
+      </div>
+
+      <!-- 4 Solution Cards Grid -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Card 1: On-Grid -->
+        <motion.div class="bg-white p-8
+
+ rounded-3xl shadow-lg hover:shadow-xl">
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mb-5 bg-[#F07E0415] text-[#F07E04]">
+            Más popular
+          </span>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-[#F07E0412]">
+            <Sun class="w-7 h-7 text-[#F07E04]" />
+          </div>
+          <div class="flex items-center gap-2 mb-3">
+            <h3 class="text-xl font-black text-[#154660]">Sistemas On-Grid</h3>
+            <Tooltip text="On-Grid: Sistema conectado a la red pública...">
+              <Info class="w-4 h-4 text-gray-400 cursor-help" />
+            </Tooltip>
+          </div>
+          <p class="text-gray-500 leading-relaxed mb-6 text-sm">
+            Energía inteligente para ciudades. Genera, consume y vende tus excedentes legalmente con Net Billing.
+          </p>
+          <ul class="space-y-2.5">
+            <li class="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 class="w-4 h-4 shrink-0 text-[#F07E04]" />
+              <span class="text-gray-600">Conexión a red pública</span>
+            </li>
+            <li class="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 class="w-4 h-4 shrink-0 text-[#F07E04]" />
+              <span class="text-gray-600">Inyección de excedentes</span>
+            </li>
+            <li class="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 class="w-4 h-4 shrink-0 text-[#F07E04]" />
+              <span class="text-gray-600">Sin baterías requeridas</span>
+            </li>
+            <li class="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 class="w-4 h-4 shrink-0 text-[#F07E04]" />
+              <span class="text-gray-600">Máxima rentabilidad</span>
+            </li>
+          </ul>
+        </motion.div>
+
+        <!-- Card 2: Off-Grid -->
+        <motion.div class="bg-white p-8 rounded-3xl shadow-lg">
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mb-5 bg-[#4AAF4D15] text-[#4AAF4D]">
+            Independencia total
+          </span>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-[#4AAF4D12]">
+            <Battery class="w-7 h-7 text-[#4AAF4D]" />
+          </div>
+          <!-- Similar structure for other cards -->
+        </motion.div>
+
+        <!-- Card 3: Hybrid -->
+        <motion.div class="bg-white p-8 rounded-3xl shadow-lg">
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mb-5 bg-[#F09C0A15] text-[#F09C0A]">
+            Lo mejor de dos mundos
+          </span>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-[#F09C0A12]">
+            <Zap class="w-7 h-7 text-[#F09C0A]" />
+          </div>
+          <!-- Similar structure -->
+        </motion.div>
+
+        <!-- Card 4: Maintenance -->
+        <motion.div class="bg-white p-8 rounded-3xl shadow-lg">
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mb-5 bg-[#15466015] text-[#154660]">
+            Protege tu inversión
+          </span>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-[#15466012]">
+            <Wrench class="w-7 h-7 text-[#154660]" />
+          </div>
+          <!-- Similar structure -->
+        </motion.div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DOBLE GARANTÍA ──────────────────────────────────────────────── -->
+  <section class="py-24 relative overflow-hidden" 
+    style={{background: 'linear-gradient(135deg, #0A1929 0%, #154660 60%, #0D2D3E 100%)'}}>
+    
+    <!-- Grid pattern background -->
+    <div class="absolute inset-0 opacity-[0.04] pointer-events-none" 
+      style={{backgroundImage: '...', backgroundSize: '60px 60px'}} />
+    
+    <div class="container mx-auto px-6 relative z-10">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <p class="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#4AAF4D]">
+          Nuestro Diferenciador
+        </p>
+        <h2 class="text-4xl md:text-5xl font-black text-white mb-6">
+          La Doble Garantía <span style={{color: '#F09C0A'}}>Enercity</span>
+        </h2>
+        <p class="text-white/55 text-lg">
+          Nos involucramos de principio a fin. Si nosotros no confiamos en la instalación, no te la vendemos.
+        </p>
+      </div>
+
+      <!-- 2 Guarantee Cards -->
+      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        
+        <!-- Guarantee 1: ROI Protection -->
+        <motion.div class="relative p-8 rounded-3xl" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid #F07E0430'}}>
+          <div class="flex items-start gap-5 mb-6">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-[#F07E0420] border-[1px] border-[#F07E0440]">
+              <ShieldCheck class="w-7 h-7 text-[#F07E04]" />
+            </div>
+            <div>
+              <div class="text-xs font-bold uppercase tracking-wider mb-1 text-[#F07E04]">Hasta 120 meses</div>
+              <h3 class="text-2xl font-black text-white">Inversión Protegida</h3>
+            </div>
+          </div>
+          <p class="text-white/60 leading-relaxed mb-6">
+            Cubrimos la instalación y los equipos hasta la recuperación total de tu inversión (ROI), con un máximo de 120 meses.
+          </p>
+          <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F07E0412] border-[1px] border-[#F07E0425]">
+            <CheckCircle2 class="w-5 h-5 shrink-0 text-[#F07E04]" />
+            <span class="font-bold text-sm text-[#F07E04]">Garantía de ROI</span>
+          </div>
+        </motion.div>
+
+        <!-- Guarantee 2: Extended Warranty -->
+        <motion.div class="relative p-8 rounded-3xl" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid #4AAF4D30'}}>
+          <div class="flex items-start gap-5 mb-6">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-[#4AAF4D20] border-[1px] border-[#4AAF4D40]">
+              <Zap class="w-7 h-7 text-[#4AAF4D]" />
+            </div>
+            <div>
+              <div class="text-xs font-bold uppercase tracking-wider mb-1 text-[#4AAF4D]">Hasta 10 años</div>
+              <h3 class="text-2xl font-black text-white">Extensión Técnica</h3>
+            </div>
+          </div>
+          <p class="text-white/60 leading-relaxed mb-6">
+            Si recuperas tu inversión antes de los 10 años (lo habitual), extendemos la garantía de tus equipos sin costo.
+          </p>
+          <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#4AAF4D12] border-[1px] border-[#4AAF4D25]">
+            <CheckCircle2 class="w-5 h-5 shrink-0 text-[#4AAF4D]" />
+            <span class="font-bold text-sm text-[#4AAF4D]">Sin costo adicional</span>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOLAR SIMULATOR SECTION ─────────────────────────────────────── -->
+  <section id="simulador-section" class="py-24 bg-[#F8FAFC]">
+    <div class="container mx-auto px-6">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <p class="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F07E04]">
+          Calculadora de Ahorro
+        </p>
+        <h2 class="text-4xl md:text-5xl font-black mb-6 text-[#154660]">
+          Descubre cuánto puedes <span style={{color: '#F07E04'}}>ahorrar este año.</span>
+        </h2>
+        <p class="text-gray-500 text-lg">
+          Responde 3 preguntas y obtén tu diagnóstico personalizado en 60 segundos.
+        </p>
+      </div>
+
+      <!-- Glossary Tooltips -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mb-10">
+        <Tooltip text="kWp: El tamaño del motor de tu sistema...">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold cursor-help">
+            <Info class="w-3.5 h-3.5" /> kWp
+          </span>
+        </Tooltip>
+        <!-- More tooltips for: Net Billing, Inversor, Bidireccional -->
+      </div>
+
+      <!-- Solar Simulator Component -->
+      <div class="max-w-lg mx-auto">
+        <SolarSimulator />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA + CONTACT FORM ──────────────────────────────────────────── -->
+  <section class="py-24 bg-white" id="proyectos">
+    <div class="container mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+      
+      <!-- Left: CTA Copy -->
+      <div>
+        <p class="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F07E04]">¿Hablamos?</p>
+        <h2 class="text-4xl md:text-5xl font-black leading-tight mb-8 text-[#154660]">
+          ¿Listo para transformar tu consumo energético?
+        </h2>
+        
+        <div class="space-y-5">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-[#4AAF4D15]">
+              <Globe class="w-6 h-6 text-[#4AAF4D]" />
+            </div>
+            <span class="text-lg font-semibold text-[#154660]">Consultoría técnica sin costo</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-[#4AAF4D15]">
+              <BarChart3 class="w-6 h-6 text-[#4AAF4D]" />
+            </div>
+            <span class="text-lg font-semibold text-[#154660]">Análisis de rentabilidad en 48h</span>
+          </div>
+          <!-- More benefits -->
+        </div>
+      </div>
+
+      <!-- Right: Contact Form -->
+      <div class="p-10 rounded-3xl shadow-2xl" style={{background: 'linear-gradient(135deg, #154660 0%, #0D2D3E 100%)', border: '1px solid rgba(255,255,255,0.08)'}}>
+        <h4 class="text-white text-2xl font-black mb-7">Solicita tu estudio gratuito</h4>
+        <form class="space-y-4">
+          <input type="text" placeholder="Tu Nombre" class="w-full px-5 py-4 rounded-xl" />
+          <input type="email" placeholder="Correo Electrónico" class="w-full px-5 py-4 rounded-xl" />
+          <select class="w-full px-5 py-4 rounded-xl">
+            <option>Tipo de Proyecto</option>
+            <option>Residencial</option>
+            <option>Industrial</option>
+            <option>Agrícola</option>
+          </select>
+          <button type="submit" class="w-full py-4 rounded-xl text-white font-black text-lg" style={{background: '#F07E04'}}>
+            Enviar Solicitud
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+<footer class="bg-[#0A1929] text-white py-20">
+  <div class="container mx-auto px-6">
+    
+    <!-- Grid 4 columnas -->
+    <div class="grid md:grid-cols-4 gap-12 mb-16">
+      
+      <!-- Column 1: Branding & Social -->
+      <div>
+        <!-- Logo -->
+        <div class="flex items-center gap-3 mb-8">
+          <div class="relative w-8 h-8">
+            <motion.div rotate={360} className="border-2 border-dashed rounded-full" />
+            <Sun className="w-5 h-5" fill="#F09C0A" />
+          </div>
+          <span class="font-black text-white tracking-tighter">ENERCITY</span>
+        </div>
+        
+        <!-- Description -->
+        <p class="text-white/60 leading-relaxed mb-6">
+          Expertos en soluciones fotovoltaicas innovadoras y respetuosas 
+          con el medio ambiente en todo Chile.
+        </p>
+        
+        <!-- Social Icons -->
+        <div class="flex gap-3">
+          {['fb', 'li', 'ig'].map(social => (
+            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center 
+                        cursor-pointer hover:bg-#F07E04 transition-colors">
+              <Globe class="w-4 h-4" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Column 2: Navegación -->
+      <div>
+        <h5 class="font-bold text-xl mb-8">Navegación</h5>
+        <ul class="space-y-4 text-white/60">
+          {['Inicio', 'Soluciones', 'Simulador', 'Proyectos'].map(link => (
+            <li>
+              <a href="#" class="hover:text-#F09C0A transition-colors">
+                {link}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Column 3: Contacto -->
+      <div>
+        <h5 class="font-bold text-xl mb-8">Contacto</h5>
+        <ul class="space-y-4">
+          {/* Ubicación */}
+          <li class="flex items-start gap-4 text-white/60">
+            <MapPin class="w-5 h-5 shrink-0 mt-0.5" style={{color: '#4AAF4D'}} />
+            <span>Av. Providencia 1208, Of. 404, Santiago, Chile</span>
+          </li>
+          
+          {/* Teléfono */}
+          <li class="flex items-start gap-4 text-white/60">
+            <Phone class="w-5 h-5 shrink-0 mt-0.5" style={{color: '#4AAF4D'}} />
+            <span>+56 9 1234 5678</span>
+          </li>
+          
+          {/* Email */}
+          <li class="flex items-start gap-4 text-white/60">
+            <Mail class="w-5 h-5 shrink-0 mt-0.5" style={{color: '#4AAF4D'}} />
+            <span>contacto@enercity.cl</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 4: Newsletter -->
+      <div>
+        <h5 class="font-bold text-xl mb-8">Newsletter</h5>
+        <p class="text-white/60 mb-6">
+          Recibe las últimas noticias sobre energía renovable.
+        </p>
+        
+        <div class="flex flex-col gap-3">
+          <input 
+            type="email" 
+            placeholder="Tu Email" 
+            class="px-5 py-3 rounded-xl outline-none text-white placeholder-white/40"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}
+          />
+          <button 
+            class="py-3 rounded-xl font-bold transition-colors text-white"
+            style={{background: '#4AAF4D'}}
+          >
+            Suscribirse
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copyright Line -->
+    <div class="pt-8 border-t border-white/10 text-center text-white/40 text-sm">
+      <p>&copy; {new Date().getFullYear()} Enercity SpA. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>

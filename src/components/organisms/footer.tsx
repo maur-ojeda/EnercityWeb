@@ -1,126 +1,113 @@
-import { Sun, Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import styles from './footer.module.css';
-
-const footerLinks = {
-  servicios: [
-    { label: "Solar Residencial", href: "#" },
-    { label: "Solar Comercial", href: "#" },
-    { label: "Solar Industrial", href: "#" },
-    { label: "Mantenimiento", href: "#" },
-  ],
-  empresa: [
-    { label: "Nosotros", href: "#" },
-    { label: "Proyectos", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Trabaja con nosotros", href: "#" },
-  ],
-  legal: [
-    { label: "Términos y Condiciones", href: "#" },
-    { label: "Política de Privacidad", href: "#" },
-    { label: "Política de Cookies", href: "#" },
-  ]
-};
+import { Sun, Facebook, Instagram, Linkedin, Mail, Phone, MapPin, Globe } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className={styles.footer}>
-      {/* Main Footer */}
-      <div className={styles.container}>
-        <div className={styles.footerGrid}>
-          {/* Brand */}
-          <div className={styles.brandSection}>
-            <div className={styles.brandLogo}>
-              <div className={styles.brandIcon}>
-                <Sun className="w-6 h-6 text-white" />
+    <footer className="bg-[#0A1929] text-white py-20 font-sans">
+      <div className="container mx-auto px-6">
+        
+        {/* Grid 4 columnas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          
+          {/* Columna 1: Branding & Social */}
+          <div>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="relative w-8 h-8 flex items-center justify-center">
+                {/* Círculo animado con Framer Motion */}
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 border-2 border-dashed border-[#F09C0A] rounded-full" 
+                />
+                <Sun className="w-5 h-5 text-[#F09C0A]" fill="#F09C0A" />
               </div>
-              <span className={styles.brandName}>Enercity</span>
+              <span className="font-black text-white tracking-tighter text-xl">ENERCITY</span>
             </div>
-            <p className={styles.brandDescription}>
-              Lideres en energía solar para Chile. Transformamos hogares y empresas 
-              hacia un futuro más sostenible y económicamente eficiente.
+            
+            <p className="text-white/60 leading-relaxed mb-6">
+              Expertos en soluciones fotovoltaicas innovadoras y respetuosas 
+              con el medio ambiente en todo Chile.
             </p>
             
-            {/* Contact Info */}
-            <div className={styles.contactInfo}>
-              <div className={styles.contactItem}>
-                <Phone className="w-4 h-4" />
-                <span className={styles.contactText}>+56 9 1234 5678</span>
-              </div>
-              <div className={styles.contactItem}>
-                <Mail className="w-4 h-4" />
-                <span className={styles.contactText}>contacto@enercity.cl</span>
-              </div>
-              <div className={styles.contactItem}>
-                <MapPin className="w-4 h-4" />
-                <span className={styles.contactText}>Santiago, Chile</span>
-              </div>
+            {/* Social Icons */}
+            <div className="flex gap-3">
+              {[
+                { icon: <Facebook className="w-4 h-4" />, href: "#" },
+                { icon: <Linkedin className="w-4 h-4" />, href: "#" },
+                { icon: <Instagram className="w-4 h-4" />, href: "#" }
+              ].map((social, idx) => (
+                <a 
+                  key={idx}
+                  href={social.href}
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center 
+                            cursor-pointer hover:bg-[#F07E04] transition-colors"
+                >
+                  {social.icon}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Links - Servicios */}
+          {/* Columna 2: Navegación */}
           <div>
-            <h4 className={styles.sectionTitle}>Servicios</h4>
-            <ul className={styles.linkList}>
-              {footerLinks.servicios.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className={styles.linkItem}>
-                    {link.label}
+            <h5 className="font-bold text-xl mb-8 text-white">Navegación</h5>
+            <ul className="space-y-4 text-white/60">
+              {['Inicio', 'Soluciones', 'Simulador', 'Proyectos'].map((link) => (
+                <li key={link}>
+                  <a href="#" className="hover:text-[#F09C0A] transition-colors">
+                    {link}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Links - Empresa */}
+          {/* Columna 3: Contacto */}
           <div>
-            <h4 className={styles.sectionTitle}>Empresa</h4>
-            <ul className={styles.linkList}>
-              {footerLinks.empresa.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className={styles.linkItem}>
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+            <h5 className="font-bold text-xl mb-8 text-white">Contacto</h5>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-4 text-white/60">
+                <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-[#4AAF4D]" />
+                <span>Av. Providencia 1208, Of. 404, Santiago, Chile</span>
+              </li>
+              <li className="flex items-start gap-4 text-white/60">
+                <Phone className="w-5 h-5 shrink-0 mt-0.5 text-[#4AAF4D]" />
+                <span>+56 9 1234 5678</span>
+              </li>
+              <li className="flex items-start gap-4 text-white/60">
+                <Mail className="w-5 h-5 shrink-0 mt-0.5 text-[#4AAF4D]" />
+                <span>contacto@enercity.cl</span>
+              </li>
             </ul>
           </div>
 
-          {/* Links - Legal */}
+          {/* Columna 4: Newsletter */}
           <div>
-            <h4 className={styles.sectionTitle}>Legal</h4>
-            <ul className={styles.linkList}>
-              {footerLinks.legal.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className={styles.linkItem}>
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <h5 className="font-bold text-xl mb-8 text-white">Newsletter</h5>
+            <p className="text-white/60 mb-6">
+              Recibe las últimas noticias sobre energía renovable.
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <input 
+                type="email" 
+                placeholder="Tu Email" 
+                className="px-5 py-3 rounded-xl outline-none text-white placeholder-white/40 border border-white/10 bg-white/5 focus:border-[#4AAF4D] transition-all"
+              />
+              <button 
+                className="py-3 rounded-xl font-bold transition-colors text-white bg-[#4AAF4D] hover:bg-[#3d8f3f]"
+              >
+                Suscribirse
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className={styles.footerBottom}>
-        <div className={styles.bottomContainer}>
-          <p className={styles.bottomText}>
-            © {new Date().getFullYear()} Enercity. Todos los derechos reservados.
-          </p>
-          
-          {/* Social Links */}
-          <div className={styles.socialLinks}>
-            <button className={styles.socialButton}>
-              <Facebook className="w-5 h-5" />
-            </button>
-            <button className={styles.socialButton}>
-              <Instagram className="w-5 h-5" />
-            </button>
-            <button className={styles.socialButton}>
-              <Linkedin className="w-5 h-5" />
-            </button>
-          </div>
+        {/* Línea de Copyright */}
+        <div className="pt-8 border-t border-white/10 text-center text-white/40 text-sm">
+          <p>&copy; {currentYear} Enercity SpA. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
