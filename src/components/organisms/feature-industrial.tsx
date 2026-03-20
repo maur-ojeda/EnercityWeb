@@ -10,7 +10,7 @@ const PROJECTS = [
     id: 1,
     name: "Planta Industrial Maipú",
     type: "Logística",
-    image: "https://images.unsplash.com/photo-1509391366360-fe5bb629550d?auto=format&fit=crop&q=80",
+    image: "https://picsum.photos/id/101/600/400",
     saving: "45%",
     savingLabel: "Ahorro Mensual",
     alt: "Instalación solar en galpón industrial Enercity Maipú"
@@ -19,7 +19,7 @@ const PROJECTS = [
     id: 2,
     name: "Viña del Maipo",
     type: "Agricultura",
-    image: "https://images.unsplash.com/photo-1466611653911-95282fc3656b?auto=format&fit=crop&q=80",
+    image: "https://picsum.photos/id/75/600/400",
     saving: "$12M",
     savingLabel: "Ahorro Anual",
     alt: "Paneles solares Enercity en viñedo chileno"
@@ -28,7 +28,7 @@ const PROJECTS = [
     id: 3,
     name: "Clínica San Borja",
     type: "Salud",
-    image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&q=80",
+    image: "https://picsum.photos/id/192/600/400",
     saving: "220kWp",
     savingLabel: "Potencia Instalada",
     alt: "Sistema solar Enercity en techo de edificio comercial Santiago"
