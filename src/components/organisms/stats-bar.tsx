@@ -51,7 +51,7 @@ const stats = [
     icon: <Award className="w-5 h-5" />
   },
   {
-    value: "99%",
+    value: "100%",
     label: "Clientes Satisfechos",
     description: "Post-venta garantizada",
     icon: <CheckCircle className="w-5 h-5" />
