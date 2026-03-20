@@ -13,6 +13,13 @@
       font-family: 'Rubik', sans-serif;
     }
 
+    @media (max-width: 768px) {
+      :root {
+        --radius  : 0.5rem;
+        --radius-lg: 1rem;
+      }
+    }
+
 .ssCard {
       width: 100%;
       max-width: 520px;
