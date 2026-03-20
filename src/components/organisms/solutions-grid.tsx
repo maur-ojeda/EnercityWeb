@@ -76,10 +76,10 @@ export function SolutionsGrid() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <p className="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F07E04]">
+          <p className="text-sm font-black font-sans uppercase tracking-[0.25em] mb-4 text-[#F07E04]">
             Nuestras Soluciones
           </p>
-          <h2 className="text-4xl md:text-5xl font-black mb-6 text-[#154660] leading-tight">
+          <h2 className="text-4xl md:text-5xl font-semibold font-sans mb-6 text-[#154660] leading-tight">
             Cuatro soluciones, un solo objetivo:<br />
             <span style={{color: '#F07E04'}}>tu independencia energética.</span>
           </h2>
@@ -108,8 +108,8 @@ export function SolutionsGrid() {
             >
               {/* Badge superior */}
               <div className="mb-5">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" 
-                      style={{backgroundColor: item.colorbg, color: item.color}}>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black font-sans" 
+                       style={{backgroundColor: item.colorbg, color: item.color}}>
                   {item.badge}
                 </span>
               </div>
@@ -125,7 +125,7 @@ export function SolutionsGrid() {
 
               {/* Título y Tooltip */}
               <div className="flex items-center gap-2 mb-3">
-                <h3 className="text-xl font-black text-[#154660]">{item.title}</h3>
+                <h3 className="text-xl font-bold font-sans text-[#154660]">{item.title}</h3>
                 <div className="relative group inline-flex items-center">
                   <Info className="w-4 h-4 text-gray-400 cursor-help hover:text-[#154660] transition-colors" />
                   <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 flex flex-col items-center invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50">

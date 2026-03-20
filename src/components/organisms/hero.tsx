@@ -56,7 +56,7 @@ export function Hero() {
             className="inline-flex items-center gap-3 px-4 py-2 rounded-full mb-8 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl"
           >
             <div className="w-2.5 h-2.5 rounded-full bg-[#4AAF4D] animate-pulse" />
-            <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase text-white">
+            <span className="text-xs md:text-sm font-black font-sans tracking-[0.2em] uppercase text-white">
               8 años de ingeniería fotovoltaica
             </span>
           </motion.div>
@@ -66,7 +66,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[1.05] mb-8 tracking-tighter drop-shadow-2xl"
+            className="text-5xl md:text-7xl lg:text-8xl  font-semibold text-white leading-[1.05] mb-8  drop-shadow-2xl"
           >
             Tu inversión solar <br />
             <span className="text-[#F07E04]">garantizada.</span>
@@ -92,14 +92,14 @@ export function Hero() {
           >
             <button 
               onClick={scrollToSimulator} 
-              className="group flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black text-lg text-white bg-[#4AAF4D] hover:bg-[#3d8f3f] transition-all transform hover:scale-105 shadow-2xl shadow-[#4AAF4D]/40"
+              className="group flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black font-sans text-lg text-white bg-[#4AAF4D] hover:bg-[#3d8f3f] transition-all transform hover:scale-105 shadow-2xl shadow-[#4AAF4D]/40"
             >
               Simular mi ahorro ahora 
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </button>
             <a 
               href="#proyectos" 
-              className="flex items-center justify-center px-10 py-5 rounded-2xl font-bold text-lg text-white bg-white/5 border border-white/20 backdrop-blur-md hover:bg-white/20 transition-all shadow-xl"
+              className="flex items-center justify-center px-10 py-5 rounded-2xl font-black font-sans text-lg text-white bg-white/5 border border-white/20 backdrop-blur-md hover:bg-white/20 transition-all shadow-xl"
             >
               Ver proyectos industriales
             </a>
@@ -118,18 +118,18 @@ export function Hero() {
               <Zap className="w-6 h-6 text-white" fill="white" />
             </div>
             <div>
-              <div className="text-xl font-black text-white">Doble</div>
-              <div className="text-[#4AAF4D] text-xs font-black uppercase tracking-widest">Garantía Real</div>
+              <div className="text-xl font-black font-sans text-white">Doble</div>
+              <div className="text-[#4AAF4D] text-xs font-black font-sans uppercase tracking-widest">Garantía Real</div>
             </div>
           </div>
           
           <div className="space-y-4">
             <div className="bg-white/5 rounded-2xl p-5 border border-white/5 group hover:bg-white/10 transition-colors">
-              <div className="text-4xl font-black text-white">120</div>
+              <div className="text-4xl font-black font-sans text-white">120</div>
               <div className="text-white/40 text-[10px] uppercase tracking-tighter font-bold">Meses ROI Estimado</div>
             </div>
             <div className="bg-white/5 rounded-2xl p-5 border border-white/5 group hover:bg-white/10 transition-colors">
-              <div className="text-4xl font-black text-white">10 Años</div>
+              <div className="text-4xl font-black font-sans text-white">10 Años</div>
               <div className="text-white/40 text-[10px] uppercase tracking-tighter font-bold">Soporte Técnico Especializado</div>
             </div>
           </div>
@@ -142,9 +142,12 @@ export function Hero() {
         transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-20"
       >
-        <span className="text-white/40 text-[9px] font-black tracking-[0.4em] uppercase">Desliza</span>
+        <span className="text-white/40 text-[9px] font-black font-sans tracking-[0.4em] uppercase">Desliza</span>
         <div className="w-[3px] h-14 bg-gradient-to-b from-[#F09C0A] via-[#F09C0A]/40 to-transparent rounded-full" />
       </motion.div>
     </section>
   );
 }
+
+
+

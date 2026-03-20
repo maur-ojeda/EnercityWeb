@@ -1,5 +1,5 @@
-import { Sun, Facebook, Instagram, Linkedin, Mail, Phone, MapPin, Globe } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin, Globe } from 'lucide-react';
+import logoEnercity from '/src/assets/logoEnercity.png?url';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -8,22 +8,20 @@ export function Footer() {
     <footer className="bg-[#0A1929] text-white py-20 font-sans">
       <div className="container mx-auto px-6">
         
-        {/* Grid 4 columnas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        {/* Grid 3 columnas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16 pl-8 md:pl-12 lg:pl-16">
           
           {/* Columna 1: Branding & Social */}
           <div>
             <div className="flex items-center gap-3 mb-8">
-              <div className="relative w-8 h-8 flex items-center justify-center">
-                {/* Círculo animado con Framer Motion */}
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 border-2 border-dashed border-[#F09C0A] rounded-full" 
-                />
-                <Sun className="w-5 h-5 text-[#F09C0A]" fill="#F09C0A" />
-              </div>
-              <span className="font-black text-white tracking-tighter text-xl">ENERCITY</span>
+              <img 
+                src={logoEnercity} 
+                alt="Enercity Logo" 
+                className="w-[150px]" 
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </div>
             
             <p className="text-white/60 leading-relaxed mb-6">
@@ -52,7 +50,7 @@ export function Footer() {
 
           {/* Columna 2: Navegación */}
           <div>
-            <h5 className="font-bold text-xl mb-8 text-white">Navegación</h5>
+            <h5 className="font-bold font-sans text-xl mb-8 text-white">Navegación</h5>
             <ul className="space-y-4 text-white/60">
               {['Inicio', 'Soluciones', 'Simulador', 'Proyectos'].map((link) => (
                 <li key={link}>
@@ -66,7 +64,7 @@ export function Footer() {
 
           {/* Columna 3: Contacto */}
           <div>
-            <h5 className="font-bold text-xl mb-8 text-white">Contacto</h5>
+            <h5 className="font-bold font-sans text-xl mb-8 text-white">Contacto</h5>
             <ul className="space-y-4">
               <li className="flex items-start gap-4 text-white/60">
                 <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-[#4AAF4D]" />
@@ -81,27 +79,6 @@ export function Footer() {
                 <span>contacto@enercity.cl</span>
               </li>
             </ul>
-          </div>
-
-          {/* Columna 4: Newsletter */}
-          <div>
-            <h5 className="font-bold text-xl mb-8 text-white">Newsletter</h5>
-            <p className="text-white/60 mb-6">
-              Recibe las últimas noticias sobre energía renovable.
-            </p>
-            
-            <div className="flex flex-col gap-3">
-              <input 
-                type="email" 
-                placeholder="Tu Email" 
-                className="px-5 py-3 rounded-xl outline-none text-white placeholder-white/40 border border-white/10 bg-white/5 focus:border-[#4AAF4D] transition-all"
-              />
-              <button 
-                className="py-3 rounded-xl font-bold transition-colors text-white bg-[#4AAF4D] hover:bg-[#3d8f3f]"
-              >
-                Suscribirse
-              </button>
-            </div>
           </div>
         </div>
 

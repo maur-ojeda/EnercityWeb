@@ -66,11 +66,11 @@ export function ContactCta() {
             <div className="w-20 h-20 bg-[#4AAF4D] rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-black text-white mb-4">¡Mensaje Recibido!</h2>
+            <h2 className="text-3xl font-semibold font-sans text-white mb-4">¡Mensaje Recibido!</h2>
             <p className="text-white/70 mb-8 text-lg">Un ingeniero de Enercity se pondrá en contacto contigo en las próximas 24 horas hábiles.</p>
             <button 
               onClick={() => setSubmitted(false)}
-              className="text-[#F07E04] font-black uppercase tracking-widest text-sm hover:underline"
+              className="text-[#F07E04] font-black font-sans uppercase tracking-widest text-sm hover:underline"
             >
               Enviar otro mensaje
             </button>
@@ -87,8 +87,8 @@ export function ContactCta() {
           
           {/* COLUMNA IZQUIERDA (Igual a la anterior) */}
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <p className="text-sm font-black uppercase tracking-[0.3em] mb-4 text-[#F07E04]">¿Hablamos?</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] mb-8 text-[#154660] tracking-tighter">
+            <p className="text-sm font-black font-sans uppercase tracking-[0.3em] mb-4 text-[#F07E04]">¿Hablamos?</p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold font-sans leading-[1.1] mb-8 text-[#154660] tracking-tighter">
               ¿Listo para transformar <br />
               <span className="text-[#F07E04]">tu consumo energético?</span>
             </h2>
@@ -111,7 +111,7 @@ export function ContactCta() {
             className="p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #154660 0%, #0D2D3E 100%)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
-            <h4 className="text-white text-2xl font-black mb-8">Solicita tu estudio gratuito</h4>
+            <h4 className="text-white text-2xl font-bold font-sans mb-8">Solicita tu estudio gratuito</h4>
             
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Nombre */}
@@ -124,7 +124,7 @@ export function ContactCta() {
                   onChange={handleChange}
                   className={`w-full px-5 py-4 rounded-2xl bg-white/5 border transition-all text-white placeholder:text-white/20 focus:outline-none ${errors.nombre ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 focus:border-[#F07E04]'}`} 
                 />
-                {errors.nombre && <span className="absolute right-4 top-4 text-red-500 text-[10px] uppercase font-black">{errors.nombre}</span>}
+                {errors.nombre && <span className="absolute right-4 top-4 text-red-500 text-[10px] uppercase font-black font-sans">{errors.nombre}</span>}
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -171,7 +171,7 @@ export function ContactCta() {
               <button 
                 type="submit" 
                 disabled={loading || !isFormValid}
-                className={`w-full py-5 rounded-2xl text-white font-black text-xl shadow-xl transition-all flex items-center justify-center gap-3 ${!isFormValid ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
+                className={`w-full py-5 rounded-2xl text-white font-black font-sans text-xl shadow-xl transition-all flex items-center justify-center gap-3 ${!isFormValid ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
                 style={{ background: '#F07E04' }}
               >
                 {loading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Send className="w-5 h-5" /> Enviar Solicitud</>}
@@ -179,7 +179,7 @@ export function ContactCta() {
             </form>
 
             {!isFormValid && formData.nombre.length > 0 && (
-              <p className="mt-4 text-center text-red-400 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+              <p className="mt-4 text-center text-red-400 text-[10px] font-black font-sans uppercase tracking-widest flex items-center justify-center gap-2">
                 <AlertCircle className="w-3 h-3" /> Por favor, completa los campos correctamente
               </p>
             )}

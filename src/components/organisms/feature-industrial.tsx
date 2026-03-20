@@ -84,12 +84,12 @@ export function FeatureIndustrial() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="font-black text-lg leading-tight tracking-tight"
+                      className="font-bold font-sans text-lg leading-tight tracking-tight"
                     >
                       {PROJECTS[activeProject].name}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="text-[11px] uppercase tracking-[0.25em] text-[#F07E04] font-bold mt-1.5">
+                  <span className="text-[11px] uppercase tracking-[0.25em] text-[#F07E04] font-bold font-sans mt-1.5">
                     {PROJECTS[activeProject].type}
                   </span>
                 </div>
@@ -134,10 +134,10 @@ export function FeatureIndustrial() {
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ type: "spring", bounce: 0.4 }}
                   >
-                    <div className="font-black text-3xl text-[#154660] leading-none tracking-tighter">
+                    <div className="font-black font-sans text-3xl text-[#154660] leading-none tracking-tighter">
                       {PROJECTS[activeProject].saving}
                     </div>
-                    <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400 mt-2">
+                    <div className="text-[11px] font-black font-sans uppercase tracking-[0.15em] text-gray-400 mt-2">
                       {PROJECTS[activeProject].savingLabel}
                     </div>
                   </motion.div>
@@ -165,10 +165,10 @@ export function FeatureIndustrial() {
              viewport={{ once: true, amount: 0.3 }} // amount para disparar cuando el 30% es visible
              transition={{ duration: 0.7 }}
           >
-            <p className="text-sm font-black uppercase tracking-[0.4em] mb-4 text-[#F07E04]">
+            <p className="text-sm font-black font-sans uppercase tracking-[0.4em] mb-4 text-[#F07E04]">
               Confianza de Escala Industrial
             </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.05] mb-8 text-[#154660] tracking-tighter drop-shadow-sm">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold font-sans leading-[1.05] mb-8 text-[#154660] tracking-tighter drop-shadow-sm">
               Si lo hacemos para plantas,{' '}
               <span className="text-[#F07E04]">imagina lo que hacemos por ti.</span>
             </h2>
@@ -195,14 +195,14 @@ export function FeatureIndustrial() {
                   <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center bg-[#4AAF4D10] text-[#4AAF4D] group-hover/item:bg-[#4AAF4D] group-hover/item:text-white transition-all duration-400 shadow-sm border border-[#4AAF4D15]">
                     {item.icon}
                   </div>
-                  <span className="text-[#154660] font-bold text-xl tracking-tight group-hover/item:translate-x-1.5 transition-transform duration-300">
+                  <span className="text-[#154660] font-bold font-sans text-xl tracking-tight group-hover/item:translate-x-1.5 transition-transform duration-300">
                     {item.text}
                   </span>
                 </motion.div>
               ))}
             </div>
             
-            <button className="mt-14 px-12 py-5 rounded-2xl bg-[#154660] text-white font-black text-xl hover:bg-[#0A1929] transition-all transform hover:scale-105 active:scale-95 shadow-2xl shadow-[#154660]/30 group/cta">
+            <button className="mt-14 px-12 py-5 rounded-2xl bg-[#154660] text-white font-black font-sans text-xl hover:bg-[#0A1929] transition-all transform hover:scale-105 active:scale-95 shadow-2xl shadow-[#154660]/30 group/cta">
               Ver Catálogo de Proyectos
               <span className="inline-block ml-2 group-hover/cta:translate-x-1 transition-transform">→</span>
             </button>

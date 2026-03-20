@@ -40,10 +40,10 @@ export function GuaranteeBanner() {
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#4AAF4D]">
+          <p className="text-sm font-black font-sans uppercase tracking-[0.25em] mb-4 text-[#4AAF4D]">
             Nuestro Diferenciador
           </p>
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
+          <h2 className="text-4xl md:text-5xl font-semibold font-sans text-white mb-6 leading-tight">
             La Doble Garantía <span style={{ color: '#F09C0A' }}>Enercity</span>
           </h2>
           <p className="text-white/60 text-lg">
@@ -79,10 +79,10 @@ export function GuaranteeBanner() {
                   <card.icon className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: card.color }}>
+                  <div className="text-[10px] font-bold font-sans uppercase tracking-[0.2em] mb-2" style={{ color: card.color }}>
                     {card.subtitle}
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                  <h3 className="text-2xl md:text-3xl font-bold font-sans text-white tracking-tight">
                     {card.title}
                   </h3>
                 </div>
@@ -100,7 +100,7 @@ export function GuaranteeBanner() {
                 }}
               >
                 <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: card.color }} />
-                <span className="font-bold text-sm text-white/90">
+                <span className="font-black font-sans text-sm text-white/90">
                   {card.tag}
                 </span>
               </div>

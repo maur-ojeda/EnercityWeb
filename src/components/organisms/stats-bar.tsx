@@ -81,7 +81,7 @@ export function StatsBar() {
 
               {/* Contenedor del número con la animación "HeartBeat" (Latido Final) */}
               <motion.div 
-                className="text-4xl md:text-5xl font-black text-[#F07E04] mb-2 tracking-tighter min-w-[130px] inline-block"
+                className="text-4xl md:text-5xl font-black font-sans text-[#F07E04] mb-2 tracking-tighter min-w-[130px] inline-block"
                 whileInView={{ 
                   // Secuencia de escala inspirada en heartBeat: normal, grande, pequeña, normal
                   scale: [1, 1.3, 0.95, 1.1, 1], 
@@ -99,7 +99,7 @@ export function StatsBar() {
               </motion.div>
 
               {/* Label */}
-              <div className="font-bold uppercase tracking-[0.15em] text-[10px] md:text-xs text-[#154660] mb-2">
+              <div className="font-black font-sans uppercase tracking-[0.15em] text-[10px] md:text-xs text-[#154660] mb-2">
                 {stat.label}
               </div>
 

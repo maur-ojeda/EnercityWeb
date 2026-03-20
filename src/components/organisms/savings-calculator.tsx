@@ -559,7 +559,7 @@ const renderResults = () => {
          <div className="w-20 h-20 bg-[#4AAF4D] rounded-full flex items-center justify-center mx-auto shadow-lg shadow-[#4AAF4D]/20">
            <Check className="text-white w-10 h-10 stroke-[3]" />
          </div>
-         <h2 className="text-3xl font-black text-white">¡Presupuesto Enviado!</h2>
+          <h2 className="text-3xl font-semibold text-white">¡Presupuesto Enviado!</h2>
          <p className="text-white/50 text-sm">Revisa tu correo. Un asesor se conectará contigo pronto.</p>
        </motion.div>
     );
@@ -569,7 +569,7 @@ const renderResults = () => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* SECCIÓN 1: EL GANCHO (Ahorro Mensual) */}
       <div className="text-center space-y-1">
-        <h2 className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Tu Diagnóstico Enercity</h2>
+        <h2 className="text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em]">Tu Diagnóstico Enercity</h2>
         <h3 className="text-2xl font-black text-white uppercase tracking-tight">Tu Inversión Solar</h3>
       </div>
 
@@ -708,7 +708,7 @@ const renderResults = () => {
           <p className="text-sm font-bold uppercase tracking-[0.25em] mb-4 text-[#F07E04]">
             Calculadora de Ahorro
           </p>
-          <h2 className="text-4xl md:text-5xl font-black mb-6 text-[#154660] leading-tight">
+          <h2 className="text-4xl md:text-5xl font-semibold mb-6 text-[#154660] leading-tight">
             Descubre cuánto puedes <span className="text-[#F07E04]">ahorrar este año.</span>
           </h2>
           <p className="text-gray-500 text-lg">
@@ -754,7 +754,7 @@ const renderResults = () => {
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F07E04] bg-[#F07E04]/10 px-3 py-1 rounded-full border border-[#F07E04]/20">
             Simulador Solar
           </span>
-          <h2 className="text-2xl font-black mt-3">Paso {step} de 4</h2>
+          <h2 className="text-2xl font-semibold mt-3">Paso {step} de 4</h2>
         </div>
         
         {/* Step Dots (Pintura estática) */}
