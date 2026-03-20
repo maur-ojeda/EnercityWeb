@@ -4,8 +4,8 @@ import { getSettings } from '../../lib/settings';
 
 export const prerender = false;
 
-type TipoTecho = 'Losa' | 'Teja Chilena' | 'Otro';
-type TipoMedidor = 'Normal' | 'Reja/Fuera';
+type TipoTecho = 'Losa' | 'Zinc/Pizarreño' | 'Teja Chilena' | 'Teja Asfáltica' | 'Teja Colonial' | 'Industrial' | 'Otro';
+type TipoMedidor = 'Muro de la casa' | 'Reja' | 'Fuera de la casa (Poste)';
 type EstadoResultado = 'OK' | 'NO_VIABLE' | 'EJECUTIVO' | 'ERROR';
 type Clasificacion = 'ALTA_RETORNO' | 'MEDIO_RETORNO' | 'BAJA_RETORNO';
 
@@ -40,9 +40,14 @@ export const POST: APIRoute = async ({ request }) => {
     const limiteSuperior = Number(settings.limite_superior);
     const factorTeja = Number(settings.factor_teja);
     const costoMedidorReja = Number(settings.costo_medidor_reja);
+    const costoMedidorPoste = Number(settings.costo_medidor_poste);
     const iva = Number(settings.iva);
     const performanceRatio = Number(settings.performance_ratio);
-
+    const factorZincPizarreño = Number(settings.factor_zinc_pizarreño);
+    const factorTejaAsfaltica = Number(settings.factor_teja_asfaltica);
+    const factorTejaColonial = Number(settings.factor_teja_colonial);
+    const factorIndustrial = Number(settings.factor_industrial);
+    
     if (montoBoleta < limiteInferior) {
       return new Response(JSON.stringify({
         estado: 'NO_VIABLE' as EstadoResultado,
@@ -110,14 +115,36 @@ export const POST: APIRoute = async ({ request }) => {
     
     let factorTecho = 1;
     let recargoTecho = 0;
-    if (tipoTecho === 'Teja Chilena') {
-      factorTecho = factorTeja;
-      recargoTecho = precioBase * (factorTeja - 1);
+    
+    switch (tipoTecho) {
+      case 'Zinc/Pizarreño':
+        factorTecho = factorZincPizarreño;
+        break;
+      case 'Teja Chilena':
+        factorTecho = factorTeja;
+        recargoTecho = precioBase * (factorTeja - 1); // 1.142 - 1 = 0.142
+        break;
+      case 'Teja Asfáltica':
+        factorTecho = factorTejaAsfaltica;
+        recargoTecho = precioBase * (factorTejaAsfaltica - 1); // 1.05 - 1 = 0.05
+        break;
+      case 'Teja Colonial':
+        factorTecho = factorTejaColonial;
+        recargoTecho = precioBase * (factorTejaColonial - 1); // 1.12 - 1 = 0.12
+        break;
+      case 'Industrial':
+        factorTecho = factorIndustrial;
+        break;
+      default: // Losa, Otro
+        factorTecho = 1;
+        break;
     }
 
     let costoMedidor = 0;
-    if (tipoMedidor === 'Reja/Fuera') {
+    if (tipoMedidor === 'Reja') {
       costoMedidor = costoMedidorReja;
+    } else if (tipoMedidor === 'Fuera de la casa (Poste)') {
+      costoMedidor = costoMedidorPoste;
     }
 
     const precioSinIva = (precioBase * factorTecho) + costoMedidor;

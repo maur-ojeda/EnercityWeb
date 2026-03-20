@@ -35,8 +35,8 @@ interface Comuna {
   tarifa_est: string;
 }
 
-type TipoTecho = "Losa" | "Teja Chilena" | "Otro";
-type TipoMedidor = "Normal" | "Reja/Fuera";
+type TipoTecho = "Losa" | "Zinc/Pizarreño" | "Teja Chilena" | "Teja Asfáltica" | "Teja Colonial" | "Industrial" | "Otro";
+type TipoMedidor = "Muro de la casa" | "Reja" | "Fuera de la casa (Poste)";
 type EstadoResultado = "OK" | "NO_VIABLE" | "EJECUTIVO" | "ERROR";
 type Clasificacion = "ALTA_RETORNO" | "MEDIO_RETORNO" | "BAJA_RETORNO";
 
@@ -89,24 +89,30 @@ interface QuoteResult {
   };
 }
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const STEPS = [
   { num: 1, label: "Tu Comuna" },
   { num: 2, label: "Tu Consumo" },
   { num: 3, label: "Detalles" },
   { num: 4, label: "Resultados" },
+  { num: 5, label: "Confirmación" },
 ];
 
 const TIPOS_TECHO = [
   { value: "Losa", label: "Losa", desc: "Sin recargo", recargo: 0 },
-  { value: "Teja Chilena", label: "Teja Chilena", desc: "+14% recargo", recargo: 14 },
+  { value: "Zinc/Pizarreño", label: "Zinc / Pizarreño", desc: "Sin recargo", recargo: 0 },
+  { value: "Teja Chilena", label: "Teja Chilena", desc: "+14.2% recargo", recargo: 14.2 },
+  { value: "Teja Asfáltica", label: "Teja Asfáltica", desc: "+5% recargo", recargo: 5 },
+  { value: "Teja Colonial", label: "Teja Colonial", desc: "+12% recargo", recargo: 12 },
+  { value: "Industrial", label: "Industrial", desc: "Sin recargo", recargo: 0 },
   { value: "Otro", label: "Otro", desc: "Sin recargo", recargo: 0 },
 ];
 
 const TIPOS_MEDIDOR = [
-  { value: "Normal", label: "Normal", desc: "Dentro de la propiedad", costo: 0 },
-  { value: "Reja/Fuera", label: "Reja/Fuera", desc: "Fuera de la propiedad", costo: 350000 },
+  { value: "Muro de la casa", label: "Muro de la casa", desc: "Dentro de la propiedad", costo: 0 },
+  { value: "Reja", label: "Reja", desc: "Fuera de la propiedad", costo: 350000 },
+  { value: "Fuera de la casa (Poste)", label: "Fuera de la casa (Poste)", desc: "Poste exterior", costo: 450000 },
 ];
 
 function formatCLP(amount: number): string {
@@ -133,7 +139,7 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
     comunaId: 0,
     montoBoleta: 0,
     tipoTecho: "Losa" as TipoTecho,
-    tipoMedidor: "Normal" as TipoMedidor,
+    tipoMedidor: "Muro de la casa" as TipoMedidor,
     nombre: "",
     email: "",
     telefono: "",
@@ -150,6 +156,8 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
       case 3:
         return !!formData.tipoTecho && !!formData.tipoMedidor;
       case 4:
+        return true;
+      case 5:
         return true;
       default:
         return false;
@@ -186,7 +194,7 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
       } finally {
         setIsCalculating(false);
       }
-    } else if (step < 4) {
+    } else if (step < 5) {
       setStep((step + 1) as Step);
     }
   };
@@ -217,7 +225,7 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
           montoBoletaIngresado: formData.montoBoleta,
           kitId: result.kit?.id,
           factorTechoAplicado: result.calculo.factorTecho,
-          costoMedidorAplicado: result.calculo.costoMedidor,
+          costoFijoMedidorAplicado: result.calculo.costoMedidor,
           precioFinalIva: result.calculo.precioFinalIva,
         }),
       });
@@ -229,6 +237,8 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
       }
 
       setLeadCreated(true);
+      setStep(5); // Avanzar al Paso 5 de confirmación
+      document.getElementById('simulador-card')?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -236,14 +246,14 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
     }
   };
 
-  const getClasificacionStyles = (clasificacion: Clasificacion) => {
+      const getClasificacionStyles = (clasificacion: Clasificacion) => {
     switch (clasificacion) {
       case "ALTA_RETORNO":
-        return { bg: "bg-green-100", text: "text-green-800", border: "border-green-300", label: "EXCELENTE INVERSION" };
+        return { bg: "bg-green-100", text: "text-green-800", border: "border-green-300", label: "¡EXCELENTE INVERSIÓN!" };
       case "MEDIO_RETORNO":
-        return { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-300", label: "BUENA INVERSION" };
+        return { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-300", label: "BUENA INVERSIÓN" };
       case "BAJA_RETORNO":
-        return { bg: "bg-red-100", text: "text-red-800", border: "border-red-300", label: "INVERSION A LARGO PLAZO" };
+        return { bg: "bg-red-100", text: "text-red-800", border: "border-red-300", label: "INVERSIÓN A LARGO PLAZO" };
     }
   };
 
@@ -407,17 +417,15 @@ case 3:
                   : "border-white/5 bg-white/5 text-white/40 hover:border-white/20"
               )}
             >
-              <div className={cn(
-                "transition-transform duration-300 group-hover:scale-110",
-                formData.tipoTecho === techo.value ? "text-[#F07E04]" : "text-white/20 group-hover:text-white/40"
-              )}>
-                {techo.value === "Losa" && <Building className="w-6 h-6 stroke-[1.5]" />}
-                {techo.value === "Teja Chilena" && <House className="w-6 h-6 stroke-[1.5]" />}
-                {techo.value === "Otro" && <Settings className="w-6 h-6 stroke-[1.5]" />}
-              </div>
-              <span className="text-[10px] font-black uppercase leading-tight tracking-wider">
-                {techo.label}
-              </span>
+               <div className={cn(
+                 "transition-transform duration-300 group-hover:scale-110",
+                 formData.tipoTecho === techo.value ? "text-[#F07E04]" : "text-white/20 group-hover:text-white/40"
+               )}>
+                 <span className="text-[10px] font-black uppercase leading-tight tracking-wider">
+                   {techo.label}
+                 </span>
+               </div>
+             
             </button>
           ))}
         </div>
@@ -442,12 +450,12 @@ case 3:
                 "transition-colors",
                 formData.tipoMedidor === medidor.value ? "text-[#F07E04]" : "text-white/20 group-hover:text-white/40"
               )}>
-                {medidor.value === "Normal" ? <ShieldCheck className="w-6 h-6 stroke-[1.5]" /> : <ShieldAlert className="w-6 h-6 stroke-[1.5]" />}
+                
               </div>
               <div className="flex flex-col">
                 <span className="text-[11px] font-black uppercase tracking-widest">{medidor.label}</span>
                 <span className="text-[9px] opacity-40 font-bold uppercase tracking-tighter">
-                  {medidor.value === "Normal" ? "Interior Propiedad" : "Perímetro Exterior"}
+                  {medidor.value === "Muro de la casa" ? "Interior Propiedad" : "Perímetro Exterior"}
                 </span>
               </div>
             </button>
@@ -456,7 +464,7 @@ case 3:
 
         {/* ALERTA KIT ADECUACIÓN SEC */}
         <AnimatePresence>
-          {formData.tipoMedidor === "Reja/Fuera" && (
+          {formData.tipoMedidor === "Reja" && (
             <motion.div
               initial={{ opacity: 0, y: -10, height: 0 }}
               animate={{ opacity: 1, y: 0, height: "auto" }}
@@ -504,7 +512,47 @@ case 3:
         </button>
       </div>
     </motion.div>
-  );
+      );
+      
+      case 5:
+        return (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            className="text-center py-16 space-y-8"
+            style={{ minHeight: 400 }}
+          >
+            <div className="w-20 h-20 bg-[#4AAF4D] rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="text-white w-10 h-10 stroke-[3]" />
+            </div>
+            
+            <h2 className="text-3xl font-semibold text-white mb-4">¡Solicitud Completa!</h2>
+            <p className="text-white/70 text-lg mb-8 max-w-md mx-auto leading-relaxed">
+              Tu solicitud ha sido enviada exitosamente. Un asesor de Enercity te contactará
+              en las próximas 24 horas hábiles para coordinar la visita técnica y la instalación.
+            </p>
+            
+            <button
+              onClick={() => {
+                setResult(null);
+                setLeadCreated(false);
+                setStep(1);
+                setFormData({
+                  comunaId: 0,
+                  montoBoleta: 0,
+                  tipoTecho: "Losa" as TipoTecho,
+                  tipoMedidor: "Muro de la casa" as TipoMedidor,
+                  nombre: "",
+                  email: "",
+                  telefono: "",
+                });
+              }}
+              className="w-full max-w-md mx-auto py-4 rounded-2xl bg-[#4AAF4D] text-white font-semibold hover:bg-[#3d8f3f] transition-all"
+            >
+              ← Volver a Simular
+            </button>
+          </motion.div>
+        );
       
       case 4:
         return (
@@ -553,17 +601,7 @@ const renderResults = () => {
   const clasificacionStyles = getClasificacionStyles(resumen.clasificacion);
   
 
-  if (leadCreated) {
-    return (
-       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-10 space-y-6">
-         <div className="w-20 h-20 bg-[#4AAF4D] rounded-full flex items-center justify-center mx-auto shadow-lg shadow-[#4AAF4D]/20">
-           <Check className="text-white w-10 h-10 stroke-[3]" />
-         </div>
-          <h2 className="text-3xl font-semibold text-white">¡Presupuesto Enviado!</h2>
-         <p className="text-white/50 text-sm">Revisa tu correo. Un asesor se conectará contigo pronto.</p>
-       </motion.div>
-    );
-  }
+  // Mostrar resultados financieros siempre, independientemente del estado de leadCreated
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -747,10 +785,10 @@ const renderResults = () => {
          <div className="max-w-5xl lg:max-w-xl mx-auto">
   
 
- <section id="simulador" className="py-8 md:py-20 bg-slate-50 min-h-screen flex items-center">
+   <section id="simulador" aria-live="polite" className="bg-slate-50 min-h-screen flex items-top">
    <div className="container mx-auto px-4 md:px-6 max-w-xl">
-    {/* Tarjeta Principal */}
-    <div className="bg-[#154660] rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 text-white">
+     {/* Tarjeta Principal */}
+     <div id="simulador-card" className="bg-[#154660] rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 text-white">
       
       {/* Header del Diseñador */}
       <div className="p-6 md:p-8 pb-3 md:pb-4 flex justify-between items-end">

@@ -4,6 +4,8 @@ CREATE TABLE comunas (
   nombre VARCHAR(100) NOT NULL UNIQUE,
   activa BOOLEAN DEFAULT true,
   region VARCHAR(100),
+  radiacion_ghi VARCHAR(50),
+  tarifa_est NUMERIC(10,2),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -35,6 +37,15 @@ CREATE TABLE leads (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 4. Settings (configuración dinámica)
+CREATE TABLE settings (
+  id SERIAL PRIMARY KEY,
+  key VARCHAR(50) NOT NULL UNIQUE,
+  value NUMERIC NOT NULL,
+  descripcion VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Seed data: Kits según Excel
 INSERT INTO precios_kits (consumo_bruto, amperaje_necesario, inversor_kw, paneles, kwp, precio_neto_base) VALUES
 (50000, '10 A', 3.0, 6, 3.30, 4990000),
@@ -56,3 +67,21 @@ INSERT INTO precios_kits (consumo_bruto, amperaje_necesario, inversor_kw, panele
 (210000, '30 A', 15.0, 24, 13.20, 20990000),
 (220000, '30 A', 15.0, 26, 14.30, 21990000),
 (230000, '40 A', 20.0, 26, 14.30, 22990000);
+
+-- Seed data: Configuraciones iniciales
+INSERT INTO settings (key, value, descripcion) VALUES
+('iva', 1.19, 'IVA aplicado en Chile'),
+('factor_teja', 1.142, 'Factor de recargo para teja chilena'),
+('costo_medidor_reja', 350000, 'Costo de medidor tipo reja'),
+('costo_medidor_poste', 450000, 'Costo de medidor tipo poste'),
+('factor_zinc_pizarreño', 1.0, 'Factor de recargo para zinc/pizarreño'),
+('factor_teja_asfaltica', 1.05, 'Factor de recargo para teja asfáltica'),
+('factor_teja_colonial', 1.12, 'Factor de recargo para teja colonial'),
+('factor_industrial', 1.0, 'Factor de recargo para industrial'),
+('limite_inferior', 50000, 'Consumo mínimo para sistema solar'),
+('limite_superior', 230000, 'Consumo máximo para sistema solar'),
+('performance_ratio', 0.80, 'Ratio de rendimiento del sistema'),
+('potencia_modulo_wp', 450, 'Potencia estándar de módulo solar en Wp'),
+('email_from_name', 'Enercity', 'Nombre remitente emails'),
+('email_from_address', 'presupuestos@enercity.cl', 'Email remitente'),
+('email_telefono', '+56912345678', 'Teléfono contacto');
