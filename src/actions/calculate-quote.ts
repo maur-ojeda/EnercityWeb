@@ -1,9 +1,8 @@
 import { defineAction, z } from 'astro:actions';
 import { supabase } from '../lib/supabase';
+import { calculateQuote as calculateQuoteService, getDefaultSettings, type QuoteInput } from '../lib/services/quote';
+import type { Kit } from '../types/simulation';
 
-const FACTOR_TEJA_CHILENA = 1.14;
-const COSTO_FIJO_MEDIDOR_REJA = 350000;
-const IVA = 1.19;
 const LIMITE_INFERIOR = 50000;
 const LIMITE_SUPERIOR = 230000;
 
@@ -14,7 +13,7 @@ export const calculateQuote = defineAction({
     tipoMedidor: z.enum(['Normal', 'Reja/Fuera']),
   }),
   handler: async (input) => {
-    const { montoBoleta, tipoTecho, tipoMedidor } = input;
+    const { montoBoleta } = input;
 
     if (montoBoleta < LIMITE_INFERIOR) {
       return {
@@ -32,15 +31,13 @@ export const calculateQuote = defineAction({
       };
     }
 
-    const { data: kit, error } = await supabase
+    const { data: kits, error: fetchError } = await supabase
       .from('precios_kits')
       .select('*')
       .lte('consumo_bruto', montoBoleta)
-      .order('consumo_bruto', { ascending: false })
-      .limit(1)
-      .single();
+      .order('consumo_bruto', { ascending: false });
 
-    if (error || !kit) {
+    if (fetchError || !kits || kits.length === 0) {
       return {
         estado: 'ERROR',
         mensaje: 'No se encontró un kit compatible.',
@@ -48,41 +45,58 @@ export const calculateQuote = defineAction({
       };
     }
 
-    let precioBase = Number(kit.precio_neto_base);
-    let recargoTecho = 0;
-    let factorTecho = 1;
+    const typedKits: Kit[] = kits.map((k) => ({
+      id: k.id,
+      consumoBruto: k.consumo_bruto,
+      amperajeNecesario: k.amperaje_necesario,
+      inversorKw: Number(k.inversor_kw),
+      paneles: k.paneles,
+      kwp: Number(k.kwp),
+      precioNetoBase: k.precio_neto_base,
+    }));
 
-    if (tipoTecho === 'Teja Chilena') {
-      factorTecho = FACTOR_TEJA_CHILENA;
-      recargoTecho = precioBase * (FACTOR_TEJA_CHILENA - 1);
+    const tipoMedidorMap: Record<string, 'Muro de la casa' | 'Reja' | 'Fuera de la casa (Poste)'> = 
+      input.tipoMedidor === 'Reja/Fuera' ? 'Reja' : 'Muro de la casa';
+    const tipoTechoMap: Record<string, 'Losa' | 'Teja Chilena' | 'Otro'> =
+      input.tipoTecho as 'Losa' | 'Teja Chilena' | 'Otro';
+
+    const quoteInput: QuoteInput = {
+      montoBoleta,
+      comunaId: 1,
+      tipoTecho: tipoTechoMap,
+      tipoMedidor: tipoMedidorMap,
+    };
+
+    const result = await calculateQuoteService(quoteInput, typedKits, getDefaultSettings());
+
+    if (result.estado !== 'OK' || !result.kit || !result.calculo) {
+      return {
+        estado: result.estado,
+        mensaje: result.mensaje,
+        precioFinal: 0,
+      };
     }
 
-    let costoFijoMedidor = 0;
-    if (tipoMedidor === 'Reja/Fuera') {
-      costoFijoMedidor = COSTO_FIJO_MEDIDOR_REJA;
-    }
-
-    const precioSinIva = (precioBase * factorTecho) + costoFijoMedidor;
-    const precioFinal = Math.round(precioSinIva * IVA);
+    const kit = typedKits.find((k) => k.id === result.kit!.id);
 
     return {
-      estado: 'OK',
+      estado: result.estado,
       kit: {
-        id: kit.id,
-        consumoBruto: kit.consumo_bruto,
-        amperajeNecesario: kit.amperaje_necesario,
-        inversorKw: Number(kit.inversor_kw),
-        paneles: kit.paneles,
-        kwp: Number(kit.kwp),
-        precioNetoBase: kit.precio_neto_base,
+        id: result.kit.id,
+        consumoBruto: result.kit.consumoBruto,
+        amperajeNecesario: kit?.amperajeNecesario || 0,
+        inversorKw: result.kit.inversorKw,
+        paneles: result.kit.paneles,
+        kwp: result.kit.kwp,
+        precioNetoBase: result.kit.precioNetoBase,
       },
       desglose: {
-        precioBase,
-        factorTecho,
-        recargoTecho,
-        costoFijoMedidor,
-        precioSinIva,
-        precioFinal,
+        precioBase: result.calculo.precioBase,
+        factorTecho: result.calculo.factorTecho,
+        recargoTecho: result.calculo.recargoTecho,
+        costoFijoMedidor: result.calculo.costoMedidor,
+        precioSinIva: result.calculo.precioSinIva,
+        precioFinal: result.calculo.precioFinal,
       },
     };
   },
