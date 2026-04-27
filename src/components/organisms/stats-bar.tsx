@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, useRef } from 'react';
 import { Users, Award, CheckCircle, Zap } from 'lucide-react';
 import { motion, useInView, animate } from 'framer-motion';
@@ -51,7 +53,7 @@ const stats = [
     icon: <Award className="w-5 h-5" />
   },
   {
-    value: "100%",
+    value: "98%",
     label: "Clientes Satisfechos",
     description: "Post-venta garantizada",
     icon: <CheckCircle className="w-5 h-5" />

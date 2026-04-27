@@ -1,4 +1,5 @@
-import { simulate, findKitByConsumo, calculatePrice, formatCLP } from './simulation';
+import { describe, it, expect } from 'vitest';
+import { findKitByConsumo, calculatePrice, simulate, formatCLP } from './simulation';
 import type { Kit, SimulationInput } from '../types/simulation';
 
 const mockKits: Kit[] = [
@@ -11,39 +12,173 @@ const mockKits: Kit[] = [
   { id: 7, consumoBruto: 230000, amperajeNecesario: '40 A', inversorKw: 20.0, paneles: 26, kwp: 14.30, precioNetoBase: 22990000 },
 ];
 
-console.log('=== Tests Motor de Cálculos ===\n');
+describe('formatCLP', () => {
+  it('formatea 100000 como $100.000', () => {
+    expect(formatCLP(100000)).toBe('$100.000');
+  });
 
-console.log('--- Test 1: Kit matching (monto exacto) ---');
-const kit1 = findKitByConsumo(mockKits, 80000);
-console.log('Monto: $80.000 → Kit:', kit1?.id, 'kwp:', kit1?.kwp, 'precio:', formatCLP(kit1?.precioNetoBase || 0));
+  it('formatea 0 como $0', () => {
+    expect(formatCLP(0)).toBe('$0');
+  });
 
-console.log('\n--- Test 2: Kit matching (monto intermedio, tomar inferior) ---');
-const kit2 = findKitByConsumo(mockKits, 85000);
-console.log('Monto: $85.000 → Kit:', kit2?.id, 'kwp:', kit2?.kwp, '(debería ser kit 4 con 80k)');
+  it('formatea 1000000 como $1.000.000', () => {
+    expect(formatCLP(1000000)).toBe('$1.000.000');
+  });
 
-console.log('\n--- Test 3: Cálculo completo - Losa + Normal ---');
-const result1 = simulate({ montoBoleta: 80000, tipoTecho: 'Losa', tipoMedidor: 'Normal' }, mockKits);
-console.log('Precio Base:', formatCLP(result1.precioBase));
-console.log('Recargo Techo:', formatCLP(result1.recargoTecho), '(0, es Losa)');
-console.log('Costo Medidor:', formatCLP(result1.costoFijoMedidor), '(0, es Normal)');
-console.log('Precio Sin IVA:', formatCLP(result1.precioSinIva));
-console.log('Precio Final:', formatCLP(result1.precioFinal));
+  it('formatea valores pequeños con decimales truncados', () => {
+    expect(formatCLP(499.99)).toBe('$500');
+  });
+});
 
-console.log('\n--- Test 4: Cálculo completo - Teja Chilena + Reja/Fuera ---');
-const result2 = simulate({ montoBoleta: 80000, tipoTecho: 'Teja Chilena', tipoMedidor: 'Reja/Fuera' }, mockKits);
-console.log('Precio Base:', formatCLP(result2.precioBase));
-console.log('Factor Techo:', result2.factorTecho, '(x1.14)');
-console.log('Recargo Techo:', formatCLP(result2.recargoTecho));
-console.log('Costo Medidor:', formatCLP(result2.costoFijoMedidor), '($350.000)');
-console.log('Precio Sin IVA:', formatCLP(result2.precioSinIva));
-console.log('Precio Final:', formatCLP(result2.precioFinal));
+describe('findKitByConsumo', () => {
+  it('retorna kit cuando monto exact match', () => {
+    const kit = findKitByConsumo(mockKits, 80000);
+    expect(kit?.id).toBe(4);
+  });
 
-console.log('\n--- Test 5: No viable (< $50.000) ---');
-const result3 = simulate({ montoBoleta: 40000, tipoTecho: 'Losa', tipoMedidor: 'Normal' }, mockKits);
-console.log('EsNoViable:', result3.esNoViable, '| Mensaje:', result3.mensaje);
+  it('retorna kit correcto para monto intermedio (85k toma kit 80k)', () => {
+    const kit = findKitByConsumo(mockKits, 85000);
+    expect(kit?.id).toBe(4);
+    expect(kit?.consumoBruto).toBe(80000);
+  });
 
-console.log('\n--- Test 6: Contacto Ejecutivo (> $230.000) ---');
-const result4 = simulate({ montoBoleta: 250000, tipoTecho: 'Losa', tipoMedidor: 'Normal' }, mockKits);
-console.log('Requiere Ejecutivo:', result4.requiereContactoEjecutivo, '| Mensaje:', result4.mensaje);
+  it('retorna null cuando montoBelow min threshold', () => {
+    const kit = findKitByConsumo(mockKits, 49999);
+    expect(kit).toBeNull();
+  });
 
-console.log('\n=== Fin Tests ===');
+  it('retorna null cuando monto Above max threshold', () => {
+    const kit = findKitByConsumo(mockKits, 230001);
+    expect(kit).toBeNull();
+  });
+
+  it('retorna null when monto equals exactly 50000', () => {
+    const kit = findKitByConsumo(mockKits, 50000);
+    expect(kit?.id).toBe(1);
+  });
+
+  it('retorna null when monto equals exactly 230000', () => {
+    const kit = findKitByConsumo(mockKits, 230000);
+    expect(kit?.id).toBe(7);
+  });
+
+  it('selecciona el mayor consumoBruto que no exceed monto', () => {
+    const kit = findKitByConsumo(mockKits, 95000);
+    // Sorted DESC, first where consumo <= monto is 90k (kit 5)
+    expect(kit?.id).toBe(5);
+    expect(kit?.consumoBruto).toBe(90000);
+  });
+});
+
+describe('calculatePrice', () => {
+  const kit = mockKits[3]; // id: 4, precioNetoBase: 7990000
+
+  it('calcula precio con Losa y Normal sin recargos', () => {
+    const result = calculatePrice(kit, 'Losa', 'Normal');
+    expect(result.precioBase).toBe(7990000);
+    expect(result.factorTecho).toBe(1);
+    expect(result.recargoTecho).toBe(0);
+    expect(result.costoFijoMedidor).toBe(0);
+  });
+
+  it('calcula precio con Teja Chilena (factor 1.14)', () => {
+    const result = calculatePrice(kit, 'Teja Chilena', 'Normal');
+    expect(result.factorTecho).toBe(1.14);
+    expect(result.recargoTecho).toBeCloseTo(1118600, 0); // ±1 por float
+  });
+
+  it('calcula precio con Reja/Fuera (+$350000)', () => {
+    const result = calculatePrice(kit, 'Losa', 'Reja/Fuera');
+    expect(result.costoFijoMedidor).toBe(350000);
+  });
+
+  it('calcula precio con Teja Chilena + Reja/Fuera', () => {
+    const result = calculatePrice(kit, 'Teja Chilena', 'Reja/Fuera');
+    expect(result.factorTecho).toBe(1.14);
+    expect(result.recargoTecho).toBeCloseTo(1118600, 0);
+    expect(result.costoFijoMedidor).toBe(350000);
+  });
+
+  it('aplica IVA correctamente al precio final', () => {
+    const result = calculatePrice(kit, 'Losa', 'Normal');
+    const expectedSinIva = 7990000;
+    const expectedFinal = Math.round(expectedSinIva * 1.19);
+    expect(result.precioSinIva).toBe(expectedSinIva);
+    expect(result.precioFinal).toBe(expectedFinal);
+  });
+
+  it('calcula Otro roof type sin recargo', () => {
+    const result = calculatePrice(kit, 'Otro', 'Normal');
+    expect(result.factorTecho).toBe(1);
+    expect(result.recargoTecho).toBe(0);
+  });
+});
+
+describe('simulate', () => {
+  const baseInput: SimulationInput = {
+    montoBoleta: 80000,
+    tipoTecho: 'Losa',
+    tipoMedidor: 'Normal',
+  };
+
+  it('simulación exitosa con input completo', () => {
+    const result = simulate(baseInput, mockKits);
+    expect(result.kit).not.toBeNull();
+    expect(result.kit.id).toBe(4);
+    expect(result.esNoViable).toBe(false);
+    expect(result.requiereContactoEjecutivo).toBe(false);
+    expect(result.precioFinal).toBeGreaterThan(0);
+  });
+
+  it('retorna esNoViable cuando monto below min', () => {
+    const input = { ...baseInput, montoBoleta: 40000 };
+    const result = simulate(input, mockKits);
+    expect(result.esNoViable).toBe(true);
+    expect(result.mensaje).toContain('$50.000');
+  });
+
+  it('retorna requiereContactoEjecutivo cuando monto above max', () => {
+    const input = { ...baseInput, montoBoleta: 250000 };
+    const result = simulate(input, mockKits);
+    expect(result.requiereContactoEjecutivo).toBe(true);
+    expect(result.mensaje).toContain('ejecutivo');
+  });
+
+  it('retorna requiereContactoEjecutivo cuando no hay kit compatible (monto muy alto)', () => {
+    const kits: Kit[] = [
+      { id: 1, consumoBruto: 50000, amperajeNecesario: '10 A', inversorKw: 3.0, paneles: 6, kwp: 3.30, precioNetoBase: 4990000 },
+    ];
+    const input = { ...baseInput, montoBoleta: 230001 };
+    const result = simulate(input, kits);
+    expect(result.requiereContactoEjecutivo).toBe(true);
+    expect(result.mensaje).toContain('ejecutivo');
+  });
+
+  it('calcula precios correctamente con Teja Chilena', () => {
+    const input: SimulationInput = { montoBoleta: 80000, tipoTecho: 'Teja Chilena', tipoMedidor: 'Normal' };
+    const result = simulate(input, mockKits);
+    expect(result.factorTecho).toBe(1.14);
+    expect(result.precioSinIva).toBeGreaterThan(result.precioBase);
+  });
+
+  it('calcula precios correctamente con Reja/Fuera', () => {
+    const input: SimulationInput = { montoBoleta: 80000, tipoTecho: 'Losa', tipoMedidor: 'Reja/Fuera' };
+    const result = simulate(input, mockKits);
+    expect(result.costoFijoMedidor).toBe(350000);
+    expect(result.precioFinal).toBeGreaterThan(result.precioSinIva);
+  });
+
+  it('boundaries: monto = 50000 es válido', () => {
+    const input = { ...baseInput, montoBoleta: 50000 };
+    const result = simulate(input, mockKits);
+    expect(result.esNoViable).toBe(false);
+    expect(result.kit).not.toBeNull();
+  });
+
+  it('boundaries: monto = 230000 es válido', () => {
+    const input = { ...baseInput, montoBoleta: 230000 };
+    const result = simulate(input, mockKits);
+    expect(result.requiereContactoEjecutivo).toBe(false);
+    expect(result.kit).not.toBeNull();
+  });
+});

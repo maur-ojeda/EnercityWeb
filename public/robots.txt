@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://paneles-solares.cl/sitemap-index.xml

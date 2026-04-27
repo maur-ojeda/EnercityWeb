@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin, Globe } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
 import logoEnercity from '/src/assets/logoEnercity.png?url';
 
 export function Footer() {
@@ -18,6 +18,10 @@ export function Footer() {
                 src={logoEnercity} 
                 alt="Enercity Logo" 
                 className="w-[150px]" 
+                width={150}
+                height={45}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
@@ -32,15 +36,17 @@ export function Footer() {
             {/* Social Icons */}
             <div className="flex gap-3">
               {[
-                { icon: <Facebook className="w-4 h-4" />, href: "#" },
-                { icon: <Linkedin className="w-4 h-4" />, href: "#" },
-                { icon: <Instagram className="w-4 h-4" />, href: "#" }
+                { icon: <Facebook className="w-4 h-4" />, href: "#", label: "Facebook (próximamente)" },
+                { icon: <Linkedin className="w-4 h-4" />, href: "#", label: "LinkedIn (próximamente)" },
+                { icon: <Instagram className="w-4 h-4" />, href: "#", label: "Instagram (próximamente)" }
               ].map((social, idx) => (
                 <a 
                   key={idx}
                   href={social.href}
+                  aria-label={social.label}
+                  aria-disabled="true"
                   className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center 
-                            cursor-pointer hover:bg-[#F07E04] transition-colors"
+                            cursor-pointer hover:bg-[#F07E04] transition-colors opacity-50"
                 >
                   {social.icon}
                 </a>
@@ -52,10 +58,15 @@ export function Footer() {
           <div>
             <h5 className="font-bold font-sans text-xl mb-8 text-white">Navegación</h5>
             <ul className="space-y-4 text-white/60">
-              {['Inicio', 'Soluciones', 'Simulador', 'Proyectos'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="hover:text-[#F09C0A] transition-colors">
-                    {link}
+              {[
+                { label: 'Inicio', href: '/#inicio' },
+                { label: 'Soluciones', href: '/#soluciones' },
+                { label: 'Simulador', href: '/#simulador-section' },
+                { label: 'Proyectos', href: '/#proyectos' },
+              ].map((link) => (
+                <li key={link.label}>
+                  <a href={link.href} className="hover:text-[#F09C0A] transition-colors">
+                    {link.label}
                   </a>
                 </li>
               ))}

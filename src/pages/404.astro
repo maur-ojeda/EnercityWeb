@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/layout.astro';
+import { Navbar } from '../components/organisms/navbar';
+import { Footer } from '../components/organisms/footer';
+import { Home, Calculator } from 'lucide-react';
+
+Astro.response.status = 404;
+---
+
+<Layout title="Página no encontrada | Enercity" description="La página que buscas no existe o fue movida.">
+  <div class="min-h-screen bg-[#0A1929]">
+    <Navbar client:load />
+    
+    <main class="pt-32 pb-20 px-6 min-h-[60vh] flex items-center justify-center">
+      <div class="text-center max-w-2xl mx-auto">
+        
+        <p class="text-[10px] font-black font-sans uppercase tracking-[0.3em] text-[#4AAF4D] mb-6">
+          Error 404
+        </p>
+        
+        <h1 class="text-[10rem] md:text-[15rem] font-black font-sans text-[#4AAF4D] leading-none tracking-tighter opacity-90 mb-4" style="line-height: 0.85;">
+          404
+        </h1>
+        
+        <h2 class="text-2xl md:text-3xl font-bold font-sans text-white mb-4">
+          ¡Ups! Esta página se fue con la energía solar
+        </h2>
+        
+        <p class="text-white/60 text-lg mb-10 max-w-md mx-auto">
+          La página que buscas no existe o fue movida.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a 
+            href="/" 
+            class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#4AAF4D] hover:bg-[#3d8f3f] text-white font-black rounded-2xl transition-all transform hover:scale-105 shadow-lg shadow-[#4AAF4D]/30"
+          >
+            <Home className="w-5 h-5" />
+            Volver al Inicio
+          </a>
+          
+          <a 
+            href="/#simulador-section" 
+            class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-[#F07E04] text-[#F07E04] font-black rounded-2xl hover:bg-[#F07E04] hover:text-white transition-all"
+          >
+            <Calculator className="w-5 h-5" />
+            Simular Ahorro
+          </a>
+        </div>
+        
+      </div>
+    </main>
+    
+    <Footer />
+  </div>
+</Layout>

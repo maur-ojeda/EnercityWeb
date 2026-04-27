@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { Mail, Phone, Globe, BarChart3, Send, CheckCircle2, Zap, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo } from 'react';
+import { Globe, BarChart3, Send, CheckCircle2, Zap, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function ContactCta() {
   const [loading, setLoading] = useState(false);
@@ -120,6 +120,7 @@ export function ContactCta() {
                   name="nombre"
                   type="text" 
                   placeholder="Tu Nombre" 
+                  aria-label="Tu nombre completo"
                   value={formData.nombre}
                   onChange={handleChange}
                   className={`w-full px-5 py-4 rounded-2xl bg-white/5 border transition-all text-white placeholder:text-white/20 focus:outline-none ${errors.nombre ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 focus:border-[#F07E04]'}`} 
@@ -134,6 +135,7 @@ export function ContactCta() {
                     name="email"
                     type="email" 
                     placeholder="Correo Electrónico" 
+                    aria-label="Correo electrónico"
                     value={formData.email}
                     onChange={handleChange}
                     className={`w-full px-5 py-4 rounded-2xl bg-white/5 border transition-all text-white placeholder:text-white/20 focus:outline-none ${errors.email ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 focus:border-[#F07E04]'}`} 
@@ -145,6 +147,7 @@ export function ContactCta() {
                     name="telefono"
                     type="tel" 
                     placeholder="WhatsApp (+569...)" 
+                    aria-label="WhatsApp con código de área +569"
                     value={formData.telefono}
                     onChange={handleChange}
                     className={`w-full px-5 py-4 rounded-2xl bg-white/5 border transition-all text-white placeholder:text-white/20 focus:outline-none ${errors.telefono ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 focus:border-[#F07E04]'}`} 
@@ -156,6 +159,7 @@ export function ContactCta() {
               <div className="relative">
                 <select 
                   name="proyecto"
+                  aria-label="Selecciona tipo de proyecto"
                   value={formData.proyecto}
                   onChange={handleChange}
                   className={`w-full px-5 py-4 rounded-2xl bg-white/5 border transition-all text-white/50 focus:outline-none appearance-none cursor-pointer ${errors.proyecto ? 'border-red-500/50' : 'border-white/10 focus:border-[#F07E04]'}`}

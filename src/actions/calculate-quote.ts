@@ -1,6 +1,5 @@
 import { defineAction, z } from 'astro:actions';
 import { supabase } from '../lib/supabase';
-import type { Kit } from '../types/simulation';
 
 const FACTOR_TEJA_CHILENA = 1.14;
 const COSTO_FIJO_MEDIDOR_REJA = 350000;
