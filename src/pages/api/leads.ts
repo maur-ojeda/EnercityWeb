@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../lib/supabase';
-import { sendQuoteEmail } from '../../lib/email';
+import { sendLeadEmails } from '../../lib/email';
 import type { LeadInput } from '../../types/simulation';
 
 export const prerender = false;
@@ -14,6 +14,19 @@ function sanitizeString(str: string): string {
 function validateEmail(email: string): boolean {
   return EMAIL_REGEX.test(email);
 }
+
+const TIPO_TECHO_MAP: Record<number, string> = {
+  1.0:   'Losa / Zinc / Pizarreño / Industrial',
+  1.05:  'Teja Asfáltica',
+  1.12:  'Teja Colonial',
+  1.142: 'Teja Chilena',
+};
+
+const TIPO_MEDIDOR_MAP: Record<number, string> = {
+  0:      'Muro de la casa',
+  350000: 'Reja',
+  450000: 'Fuera de la casa (Poste)',
+};
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -59,6 +72,16 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    let comunaNombre = 'No especificada';
+    if (comunaId) {
+      const { data: comunaData } = await supabase
+        .from('comunas')
+        .select('nombre')
+        .eq('id', comunaId)
+        .single();
+      if (comunaData?.nombre) comunaNombre = comunaData.nombre;
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .insert({
@@ -86,23 +109,32 @@ export const POST: APIRoute = async ({ request }) => {
 
     console.log(`[API] Lead creado: ${email}`);
 
-    await sendQuoteEmail({
-      to: email,
-      nombre,
-      datos: {
+    const tipoTechoLabel = TIPO_TECHO_MAP[factorTechoAplicado] ?? 'Otro';
+    const tipoMedidorLabel = TIPO_MEDIDOR_MAP[costoFijoMedidorAplicado] ?? 'No especificado';
+
+    try {
+      await sendLeadEmails({
+        cliente: {
+          nombre,
+          email,
+          telefono: telefono || 'No proporcionado',
+        },
+        comuna: { nombre: comunaNombre },
         kit: {
           kwp: Number(kitData.kwp),
           paneles: kitData.paneles,
           inversorKw: Number(kitData.inversor_kw),
         },
-        tipoTecho: factorTechoAplicado === 1.14 ? 'Teja Chilena' : 'Losa/Otro',
-        tipoMedidor: costoFijoMedidorAplicado > 0 ? 'Reja/Fuera' : 'Normal',
+        tipoTecho: tipoTechoLabel,
+        tipoMedidor: tipoMedidorLabel,
         precioFinal: precioFinalIva,
         montoBoleta: montoBoletaIngresado,
-      },
-    });
-
-    console.log(`[API] Email enviado a: ${email}`);
+        factorTecho: factorTechoAplicado,
+        costoMedidor: costoFijoMedidorAplicado,
+      });
+    } catch (emailError) {
+      console.error('[Email] Fallo en envio (no bloquea respuesta):', emailError);
+    }
 
     return new Response(JSON.stringify({ success: true, lead: data }), {
       status: 200,

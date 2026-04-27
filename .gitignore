@@ -24,3 +24,9 @@ pnpm-debug.log*
 .idea/
 .vercel
 .env*.local
+
+# test results
+test-results/
+
+# editor/IDE
+.atl/

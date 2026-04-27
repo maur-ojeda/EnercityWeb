@@ -194,25 +194,6 @@ export default function SolarWizard({ comunas }: WizardProps) {
       setLeadCreated(true);
 
       if (result.calculo) {
-        const pdfData = {
-          nombre: formData.nombre,
-          email: formData.email,
-          telefono: formData.telefono,
-          montoBoleta: formData.montoBoleta,
-          kit: {
-            kwp: result.kit?.kwp || 0,
-            paneles: result.kit?.paneles || 0,
-            inversorKw: result.kit?.inversorKw || 0,
-          },
-          tipoTecho: formData.tipoTecho,
-          tipoMedidor: formData.tipoMedidor,
-          precioBase: result.calculo.precioBase,
-          recargoTecho: result.calculo.recargoTecho,
-          costoMedidor: result.calculo.costoMedidor,
-          precioFinalIva: result.calculo.precioFinalIva,
-          fecha: new Date().toLocaleDateString('es-CL'),
-        };
-        
         //const { generatePDF } = await import('../lib/pdfGenerator');
         //generatePDF(pdfData);
       }

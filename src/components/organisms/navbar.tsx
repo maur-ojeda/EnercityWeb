@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Sun, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logoEnercity from '/src/assets/logoEnercity.png'; 
 
@@ -44,10 +44,15 @@ export function Navbar() {
           <div className="flex items-center gap-2.5 shrink-0 cursor-pointer">
             
             <img 
-            src={logoEnercity.src} 
-            alt="Enercity Logo" 
-            className="w-[150px] h-auto  object-contain relative z-10" 
-          />
+              src={logoEnercity.src} 
+              alt="Enercity Logo" 
+              className="w-[150px] h-auto  object-contain relative z-10" 
+              width={150}
+              height={45}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
           </div>
 
           {/* DESKTOP LINKS */}

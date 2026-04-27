@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ArrowRight, Zap, Sun } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, Zap } from 'lucide-react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 
 export function Hero() {
@@ -39,6 +39,11 @@ export function Hero() {
           src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&q=80" 
           alt="Granja solar Enercity" 
           className="w-full h-full object-cover"
+          width={1920}
+          height={1080}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
         {/* Overlay ultra-oscuro para asegurar que el texto blanco se vea sí o sí */}
         <div className="absolute inset-0 bg-[#0A1929]/70 mix-blend-multiply" />

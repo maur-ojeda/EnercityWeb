@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 
 
@@ -16,15 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import styles from "./savings-calculator.module.css";
-import { Check, ChevronLeft, ChevronRight, Loader2, Info, Zap, BarChart3, Shield, Sun,
-Building, 
-  House, 
-  Settings, 
-  ShieldCheck, 
-  ShieldAlert
-
- } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, Info, Zap, Shield, Sun, ShieldAlert } from 'lucide-react';
 
 interface Comuna {
   id: number;
@@ -91,13 +81,7 @@ interface QuoteResult {
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
-const STEPS = [
-  { num: 1, label: "Tu Comuna" },
-  { num: 2, label: "Tu Consumo" },
-  { num: 3, label: "Detalles" },
-  { num: 4, label: "Resultados" },
-  { num: 5, label: "Confirmación" },
-];
+
 
 const TIPOS_TECHO = [
   { value: "Losa", label: "Losa", desc: "Sin recargo", recargo: 0 },
@@ -131,13 +115,11 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
   const [step, setStep] = useState<Step>(1);
   const [isCalculating, setIsCalculating] = useState(false);
   const [result, setResult] = useState<QuoteResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [leadCreated, setLeadCreated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     comunaId: 0,
-    montoBoleta: 0,
+    montoBoleta: 100000,
     tipoTecho: "Losa" as TipoTecho,
     tipoMedidor: "Muro de la casa" as TipoMedidor,
     nombre: "",
@@ -167,7 +149,6 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
   const handleNext = async () => {
     if (step === 3) {
       setIsCalculating(true);
-      setError(null);
 
       try {
         const response = await fetch("/api/calculate-quote", {
@@ -190,7 +171,7 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
         setResult(data);
         setStep(4);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Error desconocido");
+        alert(err instanceof Error ? err.message : "Error desconocido");
       } finally {
         setIsCalculating(false);
       }
@@ -206,12 +187,11 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
   const handleSubmitLead = async () => {
     if (!result || result.estado !== "OK" || !result.calculo) return;
     if (!formData.nombre || !formData.email) {
-      setError("Por favor completa tu nombre y email");
+      alert("Por favor completa tu nombre y email");
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
 
     try {
       const apiResponse = await fetch("/api/leads", {
@@ -236,11 +216,10 @@ export function SavingsCalculator({ comunas }: SavingsCalculatorProps) {
         throw new Error(responseData.error || "Error al crear lead");
       }
 
-      setLeadCreated(true);
       setStep(5); // Avanzar al Paso 5 de confirmación
       document.getElementById('simulador-card')?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
+      alert(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setIsSubmitting(false);
     }
@@ -404,7 +383,7 @@ case 3:
 
       {/* SELECCIÓN DE TECHO (Building | House | Settings) */}
       <div className="space-y-4">
-        <label className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-2">Tipo de Techumbre</label>
+        <span aria-label="Seleccione el tipo de techumbre" className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-2">Tipo de Techumbre</span>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
           {TIPOS_TECHO.map((techo) => (
             <button
@@ -433,7 +412,7 @@ case 3:
 
       {/* UBICACIÓN DEL MEDIDOR */}
       <div className="space-y-4">
-        <label className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-2">Ubicación del Medidor</label>
+        <span className="text-[10px] font-black text-[#F07E04] uppercase tracking-[0.2em] ml-2">Ubicación del Medidor</span>
         <div className="grid grid-cols-2 gap-3">
           {TIPOS_MEDIDOR.map((medidor) => (
             <button
@@ -535,11 +514,10 @@ case 3:
             <button
               onClick={() => {
                 setResult(null);
-                setLeadCreated(false);
                 setStep(1);
                 setFormData({
                   comunaId: 0,
-                  montoBoleta: 0,
+                  montoBoleta: 100000,
                   tipoTecho: "Losa" as TipoTecho,
                   tipoMedidor: "Muro de la casa" as TipoMedidor,
                   nombre: "",
@@ -727,15 +705,7 @@ const renderResults = () => {
   );
 };
 
-  const renderSkeleton = () => (
-    <div className="space-y-6">
-      <Skeleton className="h-8 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-32 w-full" />
-      <Skeleton className="h-12 w-full" />
-    </div>
-  );
+  
 
 
 
@@ -796,7 +766,9 @@ const renderResults = () => {
           <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-[#F07E04] bg-[#F07E04]/10 px-2 md:px-3 py-1 rounded-full border border-[#F07E04]/20">
             Simulador Solar
           </span>
-          <h2 className="text-xl md:text-2xl font-semibold mt-2 md:mt-3">Paso {step} de 4</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mt-2 md:mt-3">
+            {step === 5 ? "¡Listo!" : `Paso ${step} de 4`}
+          </h2>
         </div>
         
         {/* Step Dots (Pintura estática) */}
