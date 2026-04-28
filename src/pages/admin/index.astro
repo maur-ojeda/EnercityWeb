@@ -26,7 +26,7 @@ const [leadsResult, contactsResult, leadsByStatusResult, contactsByStatusResult]
 const leadsByStatus: Record<string, number> = { nuevo: 0, contactado: 0, calificado: 0, cerrado: 0 };
 for (const row of leadsByStatusResult.data ?? []) {
   if (row.estado in leadsByStatus) {
-    leadsByStatus[row.estado as LeadStatus]++);
+    leadsByStatus[row.estado as LeadStatus]++;
   }
 }
 

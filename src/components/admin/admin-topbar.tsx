@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/button';
 import { LogOut, Menu } from 'lucide-react';
 
 interface AdminTopbarProps {
-  adminUser: AdminUser;
+  adminUser?: AdminUser;
   onMenuClick?: () => void;
 }
 
 function AdminTopbar({ adminUser, onMenuClick }: AdminTopbarProps) {
-  const initials = adminUser.email.slice(0, 2).toUpperCase();
+  const email = adminUser?.email ?? 'admin@enercity.cl';
+  const initials = email.slice(0, 2).toUpperCase();
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center gap-4 border-b bg-white px-4 sm:px-6 lg:left-64">
+    <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center gap-4 border-b bg-white px-4 sm:px-6 lg:left-64 lg:z-50">
       <Button
         variant="ghost"
         size="icon"
@@ -30,7 +31,7 @@ function AdminTopbar({ adminUser, onMenuClick }: AdminTopbarProps) {
           </AvatarFallback>
         </Avatar>
         <span className="hidden text-sm text-muted-foreground sm:inline-block">
-          {adminUser.email}
+          {email}
         </span>
         <form action="/api/admin/logout" method="POST">
           <Button

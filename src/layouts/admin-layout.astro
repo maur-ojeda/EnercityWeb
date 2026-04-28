@@ -1,13 +1,13 @@
 ---
 import Layout from './layout.astro';
-import AdminShell from '@/components/admin/admin-shell';
+import { AdminShell } from '@/components/admin/admin-shell';
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
-const adminUser = Astro.locals.adminUser!;
+const adminUser = Astro.locals.adminUser;
 const currentPath = Astro.url.pathname;
 ---
 

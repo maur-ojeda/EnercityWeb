@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sheet';
 
 interface AdminShellProps {
-  adminUser: AdminUser;
+  adminUser?: AdminUser;
   currentPath: string;
 }
 
@@ -19,12 +19,12 @@ function AdminShell({ adminUser, currentPath }: AdminShellProps) {
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-hidden bg-[#154660] lg:flex">
         <SidebarContent currentPath={currentPath} />
       </aside>
 
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="w-64 p-0" showCloseButton={false}>
+        <SheetContent side="left" className="w-64 bg-[#154660] p-0" showCloseButton={false}>
           <SheetHeader className="sr-only">
             <SheetTitle>Navegación</SheetTitle>
           </SheetHeader>
