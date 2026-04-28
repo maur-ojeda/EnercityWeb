@@ -42,16 +42,24 @@ export function ContactCta() {
     );
   }, [formData, errors]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
 
     setLoading(true);
-    // Simulación de envío
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error('Error al enviar');
       setSubmitted(true);
-    }, 2000);
+    } catch {
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -169,6 +177,19 @@ export function ContactCta() {
                   <option value="industrial" className="bg-[#154660]">Industrial / B2B</option>
                   <option value="agricola" className="bg-[#154660]">Agrícola (Riego)</option>
                 </select>
+              </div>
+
+              {/* Mensaje */}
+              <div className="relative">
+                <textarea
+                  name="mensaje"
+                  placeholder="Cuéntanos sobre tu proyecto (opcional)"
+                  aria-label="Mensaje sobre tu proyecto"
+                  value={formData.mensaje}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 transition-all text-white placeholder:text-white/20 focus:outline-none focus:border-[#F07E04] resize-none"
+                />
               </div>
 
               {/* Botón con validación visual */}
