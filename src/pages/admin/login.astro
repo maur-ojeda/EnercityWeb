@@ -1,0 +1,95 @@
+---
+import Layout from '@/layouts/layout.astro';
+
+const errorParam = Astro.url.searchParams.get('error');
+const errorMessages: Record<string, string> = {
+  missing_fields: 'Completá todos los campos',
+  invalid_email: 'Email inválido',
+};
+
+const displayError = errorParam
+  ? errorMessages[errorParam] || decodeURIComponent(errorParam)
+  : null;
+---
+
+<Layout title="Iniciar Sesión — Enercity Admin" description="Panel de administración Enercity">
+  <div class="flex min-h-[calc(100vh-0px)] items-center justify-center bg-[#154660] px-4 py-12">
+    <div class="w-full max-w-md">
+      <div class="rounded-xl border border-white/10 bg-white p-8 shadow-xl">
+        <div class="mb-8 text-center">
+          <h1 class="text-3xl font-bold text-[#154660]">Enercity</h1>
+          <p class="mt-1 text-sm text-gray-500">Panel de administración</p>
+        </div>
+
+        {displayError && (
+          <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+            {displayError}
+          </div>
+        )}
+
+        <form action="/api/admin/login" method="POST" id="login-form" class="space-y-5">
+          <div>
+            <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="tu@email.com"
+              class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs transition-[border-color,box-shadow] placeholder:text-gray-400 focus:border-[#154660] focus:outline-none focus:ring-[3px] focus:ring-[#154660]/20"
+            />
+          </div>
+
+          <div>
+            <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs transition-[border-color,box-shadow] placeholder:text-gray-400 focus:border-[#154660] focus:outline-none focus:ring-[3px] focus:ring-[#154660]/20"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="h-10 w-full cursor-pointer rounded-lg bg-[#154660] text-sm font-semibold text-white shadow-xs transition-colors hover:bg-[#1d5a7a] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#154660]/50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span id="btn-text">Iniciar sesión</span>
+            <svg id="btn-spinner" class="mx-auto hidden h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <p class="mt-6 text-center text-xs text-white/60">
+        Acceso exclusivo para administradores
+      </p>
+    </div>
+  </div>
+
+  <script is:inline>
+    const form = document.getElementById('login-form');
+    const btn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+
+    if (form && btn && btnText && btnSpinner) {
+      form.addEventListener('submit', () => {
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      });
+    }
+  </script>
+</Layout>

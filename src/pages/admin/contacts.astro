@@ -1,0 +1,30 @@
+---
+import AdminLayout from '@/layouts/admin-layout.astro';
+import ContactsTable from '@/components/admin/contacts-table';
+import { supabaseAdmin } from '@/lib/supabase-admin';
+
+const { data, count } = await supabaseAdmin
+  .from('contacts')
+  .select('id, nombre, email, telefono, proyecto, mensaje, estado, notas, created_at, updated_at', { count: 'exact' })
+  .order('created_at', { ascending: false });
+
+type ContactRow = {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  proyecto: string;
+  mensaje: string | null;
+  estado: string;
+  notas: string | null;
+  created_at: string;
+  updated_at: string | null;
+};
+
+const contacts = (data ?? []) as unknown as ContactRow[];
+const total = count ?? 0;
+---
+
+<AdminLayout title="Contactos — Enercity Admin">
+  <ContactsTable client:load contacts={contacts} total={total} />
+</AdminLayout>

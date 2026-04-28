@@ -1,0 +1,76 @@
+---
+import AdminLayout from '@/layouts/admin-layout.astro';
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import DashboardMetrics from '@/components/admin/dashboard-metrics';
+import type { DashboardMetrics as DashboardMetricsType, LeadStatus, ContactStatus } from '@/types/admin';
+
+const [leadsResult, contactsResult, leadsByStatusResult, contactsByStatusResult] = await Promise.all([
+  supabaseAdmin
+    .from('leads')
+    .select('id, nombre, email, telefono, estado, created_at, notas, comunas(nombre), precios_kits(consumo_bruto)')
+    .order('created_at', { ascending: false })
+    .limit(5),
+  supabaseAdmin
+    .from('contacts')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(5),
+  supabaseAdmin
+    .from('leads')
+    .select('estado'),
+  supabaseAdmin
+    .from('contacts')
+    .select('estado'),
+]);
+
+const leadsByStatus: Record<string, number> = { nuevo: 0, contactado: 0, calificado: 0, cerrado: 0 };
+for (const row of leadsByStatusResult.data ?? []) {
+  if (row.estado in leadsByStatus) {
+    leadsByStatus[row.estado as LeadStatus]++);
+  }
+}
+
+const contactsByStatus: Record<string, number> = { nuevo: 0, contactado: 0, cerrado: 0 };
+for (const row of contactsByStatusResult.data ?? []) {
+  if (row.estado in contactsByStatus) {
+    contactsByStatus[row.estado as ContactStatus]++;
+  }
+}
+
+const recentLeads = (leadsResult.data ?? []).map((l: any) => ({
+  id: l.id,
+  nombre: l.nombre,
+  email: l.email,
+  telefono: l.telefono,
+  estado: l.estado,
+  created_at: l.created_at,
+  notas: l.notas,
+  comuna_nombre: l.comunas?.nombre ?? '',
+  kit_label: l.precios_kits?.consumo_bruto ? `${l.precios_kits.consumo_bruto} kW` : '',
+}));
+
+const recentContacts = (contactsResult.data ?? []).map((c: any) => ({
+  id: c.id,
+  nombre: c.nombre,
+  email: c.email,
+  telefono: c.telefono,
+  proyecto: c.proyecto,
+  mensaje: c.mensaje,
+  estado: c.estado,
+  notas: c.notas,
+  created_at: c.created_at,
+}));
+
+const metrics: DashboardMetricsType = {
+  total_leads: leadsByStatusResult.count ?? leadsByStatusResult.data?.length ?? 0,
+  total_contacts: contactsByStatusResult.count ?? contactsByStatusResult.data?.length ?? 0,
+  leads_by_status: leadsByStatus as Record<LeadStatus, number>,
+  contacts_by_status: contactsByStatus as Record<ContactStatus, number>,
+  recent_leads: recentLeads,
+  recent_contacts: recentContacts,
+};
+---
+
+<AdminLayout title="Dashboard — Enercity Admin">
+  <DashboardMetrics client:load metrics={metrics} />
+</AdminLayout>

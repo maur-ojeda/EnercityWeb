@@ -1,0 +1,32 @@
+---
+import AdminLayout from '@/layouts/admin-layout.astro';
+import LeadsTable from '@/components/admin/leads-table';
+import { supabaseAdmin } from '@/lib/supabase-admin';
+
+const { data, count } = await supabaseAdmin
+  .from('leads')
+  .select('id, nombre, email, telefono, estado, notas, created_at, updated_at, monto_boleta_ingresado, precio_final_iva, comunas(nombre), precios_kits(consumo_bruto, paneles, kwp)', { count: 'exact' })
+  .order('created_at', { ascending: false });
+
+type LeadRow = {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  estado: string;
+  notas: string | null;
+  created_at: string;
+  updated_at: string | null;
+  monto_boleta_ingresado: number;
+  precio_final_iva: number;
+  comunas: { nombre: string } | null;
+  precios_kits: { consumo_bruto: number; paneles: number; kwp: number } | null;
+};
+
+const leads = (data ?? []) as unknown as LeadRow[];
+const total = count ?? 0;
+---
+
+<AdminLayout title="Leads — Enercity Admin">
+  <LeadsTable client:load leads={leads} total={total} />
+</AdminLayout>
