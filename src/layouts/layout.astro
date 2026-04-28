@@ -8,7 +8,7 @@ interface Props {
 
 const { title, description = "Simula tu ahorro con paneles solares. Cotización personalizada en minutos para tu hogar o empresa en Chile." } = Astro.props;
 
-const canonicalURL = Astro.url.href;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 const siteName = "Enercity";
 const siteUrl = "https://paneles-solares.cl";
 const ogTitle = "Enercity — Simulador de Paneles Solares en Chile";

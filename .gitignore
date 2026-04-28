@@ -30,3 +30,11 @@ test-results/
 
 # editor/IDE
 .atl/
+
+# Supabase local / exports
+cloud_completo.sql
+dump_command.sh
+export_supabase.js
+supabase_export.json
+supabase_export.sql
+supabase/snippets/
