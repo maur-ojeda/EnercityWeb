@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   }
 
   const cookieName = getAuthCookieName();
-  const sessionValue = encodeURIComponent(JSON.stringify(session));
+  const sessionValue = JSON.stringify(session);
 
   cookies.set(cookieName, sessionValue, {
     path: '/',
