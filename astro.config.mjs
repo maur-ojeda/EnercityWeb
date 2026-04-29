@@ -9,6 +9,9 @@ import vercel from '@astrojs/vercel/serverless'; // Versión 9 usa /serverless
 export default defineConfig({
   site: 'https://paneles-solares.cl',
   output: 'server',
+  security: {
+    checkOrigin: false
+  },
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()]
