@@ -202,10 +202,14 @@ export function FeatureIndustrial() {
               ))}
             </div>
             
-            <button className="mt-14 px-12 py-5 rounded-2xl bg-[#154660] text-white font-black font-sans text-xl hover:bg-[#0A1929] transition-all transform hover:scale-105 active:scale-95 shadow-2xl shadow-[#154660]/30 group/cta">
+            <motion.button 
+              whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+              whileTap={{ scale: 0.97 }}
+              className="mt-14 px-12 py-5 rounded-2xl bg-[#154660] text-white font-black font-sans text-xl hover:bg-[#0A1929] transition-colors shadow-2xl shadow-[#154660]/30 group/cta"
+            >
               Ver Catálogo de Proyectos
               <span className="inline-block ml-2 group-hover/cta:translate-x-1 transition-transform">→</span>
-            </button>
+            </motion.button>
           </motion.div>
 
         </div>

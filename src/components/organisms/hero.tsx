@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Zap } from 'lucide-react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform, useReducedMotion } from 'framer-motion';
 
 export function Hero() {
   // Variables para el efecto Parallax del mouse
@@ -51,7 +51,7 @@ export function Hero() {
       </motion.div>
 
       {/* ── CONTENIDO PRINCIPAL (Z-10 para estar sobre el fondo) ────────── */}
-      <div className="container mx-auto px-6 relative z-10 pt-20">
+      <div className="container mx-auto px-6 relative z-10 pt-28 md:pt-36">
         <div className="max-w-4xl">
           
           {/* Badge de confianza */}
@@ -68,9 +68,9 @@ export function Hero() {
 
           {/* Headline con sombra de texto para legibilidad extrema */}
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
             className="text-5xl md:text-7xl lg:text-8xl  font-semibold text-white leading-[1.05] mb-8  drop-shadow-2xl"
           >
             Tu inversión solar <br />
@@ -95,19 +95,23 @@ export function Hero() {
             transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-5"
           >
-            <button 
+            <motion.button 
               onClick={scrollToSimulator} 
-              className="group flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black font-sans text-lg text-white bg-[#4AAF4D] hover:bg-[#3d8f3f] transition-all transform hover:scale-105 shadow-2xl shadow-[#4AAF4D]/40"
+              whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+              whileTap={{ scale: 0.97 }}
+              className="group flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black font-sans text-lg text-white bg-[#4AAF4D] hover:bg-[#3d8f3f] transition-colors shadow-2xl shadow-[#4AAF4D]/40"
             >
               Simular mi ahorro ahora 
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <a 
-              href="#proyectos" 
-              className="flex items-center justify-center px-10 py-5 rounded-2xl font-black font-sans text-lg text-white bg-white/5 border border-white/20 backdrop-blur-md hover:bg-white/20 transition-all shadow-xl"
+            </motion.button>
+            <motion.a 
+              href="#proyectos"
+              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+              whileTap={{ scale: 0.97 }}
+              className="flex items-center justify-center px-10 py-5 rounded-2xl font-black font-sans text-lg text-white bg-white/5 border border-white/20 backdrop-blur-md hover:bg-white/20 transition-colors shadow-xl"
             >
               Ver proyectos industriales
-            </a>
+            </motion.a>
           </motion.div>
         </div>
 

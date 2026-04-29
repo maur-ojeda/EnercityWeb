@@ -106,16 +106,27 @@ export function ContactCta() {
                 { icon: BarChart3, text: "Análisis de rentabilidad y ROI en 48h" },
                 { icon: Zap, text: "Presupuesto detallado llave en mano" }
               ].map((benefit, idx) => (
-                <div key={idx} className="flex items-center gap-5 group">
+                <motion.div 
+                  key={idx} 
+                  className="flex items-center gap-5 group"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#4AAF4D10] text-[#4AAF4D]"><benefit.icon className="w-6 h-6" /></div>
                   <span className="text-lg font-bold text-[#154660]">{benefit.text}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>
 
           {/* COLUMNA DERECHA: FORMULARIO CON VALIDACIÓN */}
           <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #154660 0%, #0D2D3E 100%)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
@@ -193,14 +204,16 @@ export function ContactCta() {
               </div>
 
               {/* Botón con validación visual */}
-              <button 
+              <motion.button 
                 type="submit" 
                 disabled={loading || !isFormValid}
+                whileHover={isFormValid ? { scale: 1.02, transition: { duration: 0.2 } } : undefined}
+                whileTap={isFormValid ? { scale: 0.98 } : undefined}
                 className={`w-full py-5 rounded-2xl text-white font-black font-sans text-xl shadow-xl transition-all flex items-center justify-center gap-3 ${!isFormValid ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
                 style={{ background: '#F07E04' }}
               >
                 {loading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Send className="w-5 h-5" /> Enviar Solicitud</>}
-              </button>
+              </motion.button>
             </form>
 
             {!isFormValid && formData.nombre.length > 0 && (

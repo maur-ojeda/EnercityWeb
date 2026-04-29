@@ -46,9 +46,9 @@ export function Navbar() {
             <img 
               src={logoEnercity.src} 
               alt="Enercity Logo" 
-              className="w-[150px] h-auto  object-contain relative z-10" 
-              width={150}
-              height={45}
+              className={`h-auto object-contain relative z-10 transition-all duration-500 ${scrolled ? 'w-[100px] md:w-[120px]' : 'w-[200px] md:w-[232px]'}`}
+              width={232}
+              height={112}
               loading="eager"
               fetchPriority="high"
               decoding="async"
@@ -58,23 +58,26 @@ export function Navbar() {
           {/* DESKTOP LINKS */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a 
+              <motion.a 
                 key={link.name}
                 href={link.href} 
-                className="text-sm font-medium text-white/70 hover:text-white transition-colors"
+                whileHover={{ y: -1, transition: { duration: 0.15 } }}
+                className="text-sm font-medium text-white/70 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#F07E04] after:transition-all after:duration-300 hover:after:w-full"
               >
                 {link.name}
-              </a>
+              </motion.a>
             ))}
             
             {/* BOTÓN SIMULAR ESTILO ENERCITY */}
-            <button 
+            <motion.button 
               onClick={() => document.getElementById('simulador-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-[#F07E04] hover:bg-[#F09C0A] text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-[0_4px_20px_rgba(240,126,4,0.33)] active:scale-95 flex items-center gap-2 group"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="bg-[#F07E04] hover:bg-[#F09C0A] text-white px-6 py-2 rounded-full font-bold text-sm transition-colors shadow-[0_4px_20px_rgba(240,126,4,0.33)] flex items-center gap-2 group"
             >
               Simular Ahorro
               <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            </motion.button>
           </div>
 
           {/* MOBILE TOGGLE */}

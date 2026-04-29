@@ -39,7 +39,13 @@ export function GuaranteeBanner() {
       
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
           <p className="text-sm font-black font-sans uppercase tracking-[0.25em] mb-4 text-[#4AAF4D]">
             Nuestro Diferenciador
           </p>
@@ -49,7 +55,7 @@ export function GuaranteeBanner() {
           <p className="text-white/60 text-lg">
             Nos involucramos de principio a fin. Si nosotros no confiamos en la instalación, no te la vendemos.
           </p>
-        </div>
+        </motion.div>
 
         {/* 2 Guarantee Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
