@@ -10,7 +10,6 @@
       --subtle  : rgba(255,255,255,0.08);
       --radius  : 0.75rem;
       --radius-lg: 1.875rem;
-      font-family: 'Rubik', sans-serif;
     }
 
     @media (max-width: 768px) {

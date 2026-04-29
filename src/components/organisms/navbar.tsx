@@ -61,7 +61,7 @@ export function Navbar() {
               <a 
                 key={link.name}
                 href={link.href} 
-                className="text-sm font-medium text-white/70 hover:text-white transition-colors font-[Rubik]"
+                className="text-sm font-medium text-white/70 hover:text-white transition-colors"
               >
                 {link.name}
               </a>
@@ -70,7 +70,7 @@ export function Navbar() {
             {/* BOTÓN SIMULAR ESTILO ENERCITY */}
             <button 
               onClick={() => document.getElementById('simulador-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-[#F07E04] hover:bg-[#F09C0A] text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-[0_4px_20px_rgba(240,126,4,0.33)] active:scale-95 flex items-center gap-2 group font-[Rubik]"
+              className="bg-[#F07E04] hover:bg-[#F09C0A] text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-[0_4px_20px_rgba(240,126,4,0.33)] active:scale-95 flex items-center gap-2 group"
             >
               Simular Ahorro
               <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -101,7 +101,7 @@ export function Navbar() {
                     key={link.name}
                     href={link.href} 
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-lg font-bold text-white/80 hover:text-[#F07E04] py-2 border-b border-white/5 font-[Rubik]"
+                    className="text-lg font-bold text-white/80 hover:text-[#F07E04] py-2 border-b border-white/5"
                   >
                     {link.name}
                   </a>
@@ -111,7 +111,7 @@ export function Navbar() {
                     setIsMenuOpen(false);
                     document.getElementById('simulador-section')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full bg-[#F07E04] text-white py-4 rounded-2xl font-black text-center shadow-lg mt-2 font-[Rubik]"
+                  className="w-full bg-[#F07E04] text-white py-4 rounded-2xl font-black text-center shadow-lg mt-2"
                 >
                   SIMULAR MI AHORRO AHORA
                 </button>
